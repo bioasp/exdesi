@@ -61,9 +61,9 @@ same(N1,N2) :- net(N1),net(N2),N1<N2,not diff(N1,N2).
 smsame(X) :- same(Y,X).
 notunique(X) :- same(X,Y).
 notunique(X) :- same(Y,X).
-sameclass(X) :- same(X,Y), not smsame(X).
-sameclass(X) :- net(X) , not notunique(X).
-countsameclass(Z) :- Z =#count{sameclass(X)}.
+eqclass(X) :- same(X,Y), not smsame(X).
+eqclass(X) :- net(X) , not notunique(X).
+counteqclasses(Z) :- Z =#count{eqclass(X)}.
 :- not diff.
 
 %maximize differences
@@ -76,6 +76,6 @@ countsameclass(Z) :- Z =#count{sameclass(X)}.
 #show pert/2.
 #show readout/1.
 % #show sameclass/1.
-#show countsameclass/1.
+#show counteqclasses/1.
 % #show vlabel/3.
 #show difflabel/3.
