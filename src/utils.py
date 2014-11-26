@@ -23,8 +23,10 @@ def print_experiment_table(experiment) :
     nets = set()
     readouts = set()
     tab = dict()
+    classes = 0
     for a in experiment:
-      #print(a)
+      if a.pred() == "counteqclasses" :
+        classes = a.arg(0)
       if a.pred() == "pert" :
         print('set',a.arg(0),'=',a.arg(1))
       if a.pred() == "difflabel" :
@@ -35,6 +37,7 @@ def print_experiment_table(experiment) :
         tab[p]=val
     lo_nets = sorted(list(nets))
     lo_readouts = list(readouts)
+    print('We can diffentiate',classes,'classes of networks.')
     print('Network',end='')
     for r in lo_readouts :
       print ('|',r,end='')

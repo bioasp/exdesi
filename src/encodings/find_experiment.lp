@@ -68,7 +68,7 @@ counteqclasses(Z) :- Z =#count{eqclass(X)}.
 
 %maximize differences
 % #maximize[ not false = 0, diff(X,Y) @ 1 ].
-#maximize[ not false = 0, sameclass(X) @ 1 ].
+#maximize[ not false = 0, eqclass(X) @ 1 ].
 
 
 #hide.
