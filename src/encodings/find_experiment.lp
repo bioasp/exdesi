@@ -53,15 +53,29 @@ founded(N,X) :- vlabel(N,X,undef), getspos(N,X), getsneg(N,X).
 difflabel(N1,G,S1) :- readout(G), vlabel(N1,G,S1), vlabel(N2,G,S2), N1!=N2,S1!=S2.
 diff(N1,N2) :- difflabel(N1,G,S1), difflabel(N2,G,S2), N1<N2, S1!=S2.
 diff :- diff(N1,N2).
+
+net(N) :- vertex(N,X).
+same(N1,N2) :- net(N1),net(N2),N1<N2,not diff(N1,N2).
+
+
+smsame(X) :- same(Y,X).
+notunique(X) :- same(X,Y).
+notunique(X) :- same(Y,X).
+sameclass(X) :- same(X,Y), not smsame(X).
+sameclass(X) :- net(X) , not notunique(X).
+countsameclass(Z) :- Z =#count{sameclass(X)}.
 :- not diff.
 
 %maximize differences
-#maximize[ not false = 0, diff(X,Y) @ 1 ].
+% #maximize[ not false = 0, diff(X,Y) @ 1 ].
+#maximize[ not false = 0, sameclass(X) @ 1 ].
 
 
 #hide.
 % #show diff/2.
 #show pert/2.
 #show readout/1.
+% #show sameclass/1.
+#show countsameclass/1.
 % #show vlabel/3.
 #show difflabel/3.
