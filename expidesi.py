@@ -85,8 +85,7 @@ if __name__ == '__main__':
       for e in experiments :
         count = count+1
         print("experiment",count,":")
-        for a in e :
-          print(a)
+        utils.print_experiment_table(e)
 
     utils.clean_up()
 

@@ -47,7 +47,7 @@ class Lexer:
 		t.lexer.lineno += t.value.count("\n")
 		
 	def t_error(self, t):
-		print("Illegal character '",str(t.value[0]),"'", sep='')
+		print('Illegal character \''+ str(t.value[0])+'\'', sep='')
 		t.lexer.skip(1)
 
 

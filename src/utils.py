@@ -18,14 +18,33 @@
 import os
 
 
-def print_repairs(repairs) :
-    repair = set()
-    for r in repairs:
-      if r.pred() == "rep" :
-        repair.add(r)
-    for r in repair :
-      print('   ',r.arg(0))
+def print_experiment_table(experiment) :
 
+    nets = set()
+    readouts = set()
+    tab = dict()
+    for a in experiment:
+      #print(a)
+      if a.pred() == "pert" :
+        print('set',a.arg(0),'=',a.arg(1))
+      if a.pred() == "difflabel" :
+        nets.add(a.arg(0))
+        readouts.add(a.arg(1))
+        p = (a.arg(0),a.arg(1))
+        val = a.arg(2)
+        tab[p]=val
+    lo_nets = sorted(list(nets))
+    lo_readouts = list(readouts)
+    print('Network',end='')
+    for r in lo_readouts :
+      print ('|',r,end='')
+    print ('')
+    for n in lo_nets:
+      print(n,'\t',end='')
+      for r in lo_readouts :
+        print ('|',tab[(n,r)],end='')
+      print ('')
+      
 
 
 def clean_up() :

@@ -34,10 +34,12 @@ def get_experiments(nets,expvars):
     '''
     netsf = nets.to_file('nets.lp')
     expvarsf = expvars.to_file('expvars.lp')
+    #exit()
     prg = [netsf,expvarsf, find_exp_prg]
-    coptions = ''
+    coptions = '--opt-mode=optN '
     solver = GringoClasp(clasp_options=coptions)
     solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)
+    
     os.unlink(netsf)
     os.unlink(expvarsf)
     return solutions
