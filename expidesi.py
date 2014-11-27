@@ -29,33 +29,10 @@ if __name__ == '__main__':
     parser.add_argument("experivarfile",
                         help="experimental variables")
 
-    parser.add_argument('--no_zero_constraints',
-                        help="turn constraints on zero variations OFF, default is ON",
-                        action="store_true")
-
-    parser.add_argument('--propagate_unambigious_influences',
-                        help="turn constraints ON that if all predecessor of a node have the same influence this must have an effect, default is ON",
-                        action="store_true")
-
-    parser.add_argument('--no_founded_constraint',
-                        help="turn constraints OFF that every variation must be explained by an input, default is ON",
-                        action="store_true")
-
-
-
     args = parser.parse_args()
 
     net_dir = args.networkfiles
     exp_string = args.experivarfile
-
-    LC =args.propagate_unambigious_influences
-    CZ= not (args.no_zero_constraints)
-    FC= not (args.no_founded_constraint)
-
-    print(' all observed changes must be explained by an predecessor')
-    if LC : print(' unambigious influences propagate')
-    if CZ : print(' no-change observations must be explained')
-    if FC : print(' all observed changes must be explained by an input')
 
     flist =  os.listdir(net_dir)
     print('\nReading',len(flist),'network from',net_dir,'...',end='\n')
