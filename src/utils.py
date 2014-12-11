@@ -18,36 +18,62 @@
 import os
 
 
-def print_experiment_table(experiment) :
+def print_experiment_table(experimental_design) :
 
     nets = set()
     readouts = set()
-    tab = dict()
+    experiments = set()
     classes = 0
-    for a in experiment:
+    pertubations=[]
+    difftables2=dict()    
+    for a in experimental_design:
       if a.pred() == "counteqclasses" :
         classes = a.arg(0)
-      if a.pred() == "pert" :
-        print('set',a.arg(0),'=',a.arg(1))
+      if a.pred() == "pert" : # pert(E,G,S)
+        pertubations.append((a.arg(0),a.arg(1),a.arg(2)))
       if a.pred() == "difflabel" :
-        nets.add(a.arg(0))
-        readouts.add(a.arg(1))
-        p = (a.arg(0),a.arg(1))
-        val = a.arg(2)
-        tab[p]=val
+        experiment= a.arg(0)
+        net = a.arg(1)
+        readout = a.arg(2)
+        sign = a.arg(3)
+        experiments.add(experiment)
+        nets.add(net)
+        readouts.add((experiment,readout))
+        difftables2[(experiment,net,readout)]=sign
     lo_nets = sorted(list(nets))
     lo_readouts = list(readouts)
-    print('We can diffentiate',classes,'classes of networks.')
-    print('Network',end='')
-    for r in lo_readouts :
-      print ('|',r,end='')
-    print ('')
-    for n in lo_nets:
-      print(n,'\t',end='')
-      for r in lo_readouts :
-        print ('|',tab[(n,r)],end='')
+    lo_experiments = list(experiments)
+    print('We can differentiate',classes,'classes of networks with',len(experiments),'experiments.')
+
+    for e in lo_experiments :
+      print ('experiment',e,': ',end='')
+      for p in pertubations:
+        if p[0]==e :
+          print (p[1],'=',p[2],end=', ')
       print ('')
-      
+    print ('')
+    
+    #print prediction table header
+    print('       ',end='')
+    for e in lo_experiments :
+      print ('| experiment',e,end='')
+    print ('')
+    print('Network',end='')
+    for e in lo_experiments:
+      print ('|',end='')
+      for r in lo_readouts :
+        if r[0]==e : print (r[1],end='')
+    print ('')
+    
+    #print prediction table content
+    for n in lo_nets :
+      print (n,end='')
+      for e in lo_experiments:
+        print ('|',end='')
+        for r in lo_readouts :
+          if r[0]==e : print (' ',difftables2[(e,n,r[1])],end=' ')
+      print ('')
+
 
 
 def clean_up() :

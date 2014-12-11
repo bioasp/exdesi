@@ -1,81 +1,170 @@
-%choose experimental setting
-{pert(G,S)} :- pperturb(G,S). 
-{readout(G)} :- preadout(G). 
 
-pert(G) :- pert(G,S).
+% 3 possible experiments
+pexperiment(1..3).
+cexperiment(X) :- pexperiment(X).
+%{cexperiment(X)} :- pexperiment(X).
+% :- cexperiment(X), pexperiment(X-1), not cexperiment(X-1).
+
+%maximal 4 experiments
+%expmax(10).
+%:- cexperiment(X), expmax(M), X>M.
+
+
+% check if a pert has influence on a readout in a network
+hasinfl(X) :- preadout(R), obs_elabel(N,X,R,S).
+hasinfl(X) :- hasinfl(R), obs_elabel(N,X,R,S).
+
+
+% choose experimental pertubations, filter those which have no influence on a readout
+{pert(E,G,S)} :- hasinfl(G), pperturb(G,S), cexperiment(E). 
+pert(E,G) :- pert(E,G,S).
+
+% no two pertubations in the same node
+:- pert(E,G,S1),pert(E,G,S2),S1!=S2.
+
+% choose experimental readouts (take all)
+readout(E,G) :- preadout(G), cexperiment(E). 
+%{readout(E,G)} :- preadout(G), cexperiment(E). 
+
+
+
+npert(E,G,S) :- pperturb(G,S), cexperiment(E), not pert(E,G,S).
+
+% not two times the same experiment
+%allpert(E2,E1) :- pert(E2,G,S) : pert(E1,G,S); cexperiment(E1), cexperiment(E2), E1 < E2.
+%allnpert(E2,E1) :- npert(E2,G,S) : npert(E1,G,S); cexperiment(E1), cexperiment(E2), E1 < E2.
+%:- allpert(E1,E2), allnpert(E1,E2), E1 < E2.
+
+% force an partial order among the experiments, the first experiment has the least pertubations
+countpert(E,Z) :- Z = #count{ pert(E,G)}, cexperiment(E).
+:- countpert(E1,Z1), countpert(E1+1,Z2), Z1>Z2.
+
+
+% force total order biggest different pertubation last
+diffpert(G,S,E1,E1+1) :- exp(E1), exp(E1+1), pert(E1,G,S),  npert(E1+1,G,S).
+diffpert(G,S,E1,E1+1) :- exp(E1), exp(E1+1), npert(E1,G,S), pert(E1+1,G,S).
+hasbiggerdiffpert(G,S,E1,E2) :-  diffpert(G,S,E1,E2), diffpert(G2,S2,E1,E2), G<G2.
+hasbiggerdiffpert(G,S,E1,E2) :-  diffpert(G,S,E1,E2), diffpert(G2,S2,E1,E2), G==G2, S<S2.
+biggestdiffpert(G,S,E1,E2) :- diffpert(G,S,E1,E2) , not hasbiggerdiffpert(G,S,E1,E2).
+:- exp(E1),exp(E2), E1<E2, biggestdiffpert(G,S,E1,E2), pert(E1,G,S), npert(E2,G,S).
+
 
 % choose labeling
-1{vlabel(NET,G,-1), vlabel(NET,G,0), vlabel(NET,G,1), vlabel(NET,G,undef)}1 :- vertex(NET,G).
+1{vlabel(E,NET,G,-1), vlabel(E,NET,G,0), vlabel(E,NET,G,1), vlabel(E,NET,G,undef)}1 :- vertex(NET,G), cexperiment(E).
 
-vlabel(N,G,1) :- vertex(N,G), pert(G,1).
-vlabel(N,G,-1):- vertex(N,G), pert(G,-1).
-vlabel(N,G,0) :- vertex(N,G), pert(G,0).
-
-
-infl(N,G,1)  :- obs_elabel(N,A,G,1),  vlabel(N,A,1).
-infl(N,G,1)  :- obs_elabel(N,A,G,-1), vlabel(N,A,-1).
-infl(N,G,1)  :- edge(N,A,G), vlabel(N,A,undef).
-
-infl(N,G,-1) :- obs_elabel(N,A,G,-1), vlabel(N,A,1).
-infl(N,G,-1) :- obs_elabel(N,A,G,1),  vlabel(N,A,-1).
-infl(N,G,-1) :- edge(N,A,G), vlabel(N,A,undef).
-
-:- vlabel(N,G,0),     not pert(G), infl(N,G,S).
-:- vlabel(N,G,1),     not pert(G), not infl(N,G,1).
-:- vlabel(N,G,1),     not pert(G), infl(N,G,-1).
-:- vlabel(N,G,-1),    not pert(G), not infl(N,G,-1).
-:- vlabel(N,G,-1),    not pert(G), infl(N,G,1).
-:- vlabel(N,G,undef), not pert(G), not infl(N,G,1).
-:- vlabel(N,G,undef), not pert(G), not infl(N,G,-1).
+vlabel(E,N,G,1) :- vertex(N,G), pert(E,G,1).
+vlabel(E,N,G,-1):- vertex(N,G), pert(E,G,-1).
+vlabel(E,N,G,0) :- vertex(N,G), pert(E,G,0).
 
 
-getspos(N,X) :- vertex(N,X), pert(X,1).
-getspos(N,X) :- getspos(N,Y), not pert(X), obs_elabel(N,Y,X,1).
-getspos(N,X) :- getsneg(N,Y), not pert(X), obs_elabel(N,Y,X,-1).
+infl(E,N,G,1)  :- obs_elabel(N,A,G,1),  vlabel(E,N,A,1).
+infl(E,N,G,1)  :- obs_elabel(N,A,G,-1), vlabel(E,N,A,-1).
+infl(E,N,G,1)  :- edge(N,A,G), vlabel(E,N,A,undef).
 
-getsneg(N,X) :- vertex(N,X), pert(X,-1).
-getsneg(N,X) :- getsneg(N,Y), not pert(X), obs_elabel(N,Y,X,1).
-getsneg(N,X) :- getspos(N,Y), not pert(X), obs_elabel(N,Y,X,-1).
+infl(E,N,G,-1) :- obs_elabel(N,A,G,-1), vlabel(E,N,A,1).
+infl(E,N,G,-1) :- obs_elabel(N,A,G,1),  vlabel(E,N,A,-1).
+infl(E,N,G,-1) :- edge(N,A,G), vlabel(E,N,A,undef).
+
+:- vlabel(E,N,G,0),     not pert(E,G), infl(E,N,G,S).
+:- vlabel(E,N,G,1),     not pert(E,G), not infl(E,N,G,1).
+:- vlabel(E,N,G,1),     not pert(E,G), infl(E,N,G,-1).
+:- vlabel(E,N,G,-1),    not pert(E,G), not infl(E,N,G,-1).
+:- vlabel(E,N,G,-1),    not pert(E,G), infl(E,N,G,1).
+:- vlabel(E,N,G,undef), not pert(E,G), not infl(E,N,G,1).
+:- vlabel(E,N,G,undef), not pert(E,G), not infl(E,N,G,-1).
+
+
+getspos(E,N,X) :- vertex(N,X), pert(E,X,1).
+getspos(E,N,X) :- getspos(E,N,Y), not pert(E,X), obs_elabel(N,Y,X,1).
+getspos(E,N,X) :- getsneg(E,N,Y), not pert(E,X), obs_elabel(N,Y,X,-1).
+
+getsneg(E,N,X) :- vertex(N,X), pert(E,X,-1).
+getsneg(E,N,X) :- getsneg(E,N,Y), not pert(E,X), obs_elabel(N,Y,X,1).
+getsneg(E,N,X) :- getspos(E,N,Y), not pert(E,X), obs_elabel(N,Y,X,-1).
 
 % founded 1
-founded(N,X) :- vlabel(N,X, 1), getspos(N,X).
+founded(E,N,X) :- vlabel(E,N,X, 1), getspos(E,N,X).
 % founded -1
-founded(N,X) :- vlabel(N,X,-1), getsneg(N,X).
+founded(E,N,X) :- vlabel(E,N,X,-1), getsneg(E,N,X).
 % founded undef
-founded(N,X) :- vlabel(N,X,undef), getspos(N,X), getsneg(N,X).
+founded(E,N,X) :- vlabel(E,N,X,undef), getspos(E,N,X), getsneg(E,N,X).
 
-:- vlabel(N,X, 1), not founded(N,X).
-:- vlabel(N,X,-1), not founded(N,X).
-:- vlabel(N,X,undef), not founded(N,X).
+:- vlabel(E,N,X, 1), not founded(E,N,X).
+:- vlabel(E,N,X,-1), not founded(E,N,X).
+:- vlabel(E,N,X,undef), not founded(E,N,X).
 
 
-%check if labelings are different
-difflabel(N1,G,S1) :- readout(G), vlabel(N1,G,S1), vlabel(N2,G,S2), N1!=N2,S1!=S2.
-diff(N1,N2) :- difflabel(N1,G,S1), difflabel(N2,G,S2), N1<N2, S1!=S2.
-diff :- diff(N1,N2).
+% define when two signs are different
+uneq(1,0).
+uneq(1,-1).
+uneq(0,1).
+uneq(0,-1).
+uneq(-1,1).
+uneq(-1,0).
+uneq(undef,1).
+uneq(undef,0).
+uneq(undef,-1).
+uneq(1,undef).
+uneq(0,undef).
+uneq(-1,undef).
+
+
+% check whether labelings are different
+difflabel(E,N1,G,S1) :- readout(E,G), vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1!=N2, uneq(S1,S2).
+diff(E,N1,N2) :- readout(E,G), vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1<N2, uneq(S1,S2).
+diff(E) :- diff(E,N1,N2).
+:- cexperiment(E), not diff(E).
+diff :- diff(E).
+diff(N1,N2) :- diff(E,N1,N2).
+countdiff(Z) :- Z = #count{diff(N1,N2)}.
+
 
 net(N) :- vertex(N,X).
-same(N1,N2) :- net(N1),net(N2),N1<N2,not diff(N1,N2).
+
+same(N1,N2) :- net(N1), net(N2), N1<N2, not diff(N1,N2).
+%same(E,N1,N2) :- net(N1), net(N2),N1<N2, exp(E), not diff(E,N1,N2).
 
 
-smsame(X) :- same(Y,X).
+% the first experiment must distinguish atleast 2 network classes
+exp(E) :- pert(E,G).
+:- exp(1) , not diff(1).
+
+% each further experiment must distinguish atleast 1 more network class
+sdiff(E,N1,N2) :- exp(E), exp(E2), E2<=E, diff(E2,N1,N2).
+newdiff(E) :-  exp(E), exp(E2), E2<E, diff(E,N1,N2), not sdiff(E2,N1,N2).
+:- exp(E1), exp(E2), E2>E1, not newdiff(E2).
+
+
+
+has_smaller_same(Y) :- same(X,Y).
 notunique(X) :- same(X,Y).
-notunique(X) :- same(Y,X).
-eqclass(X) :- same(X,Y), not smsame(X).
+notunique(Y) :- same(X,Y).
+eqclass(X) :- same(X,Y), not has_smaller_same(X).
 eqclass(X) :- net(X) , not notunique(X).
-counteqclasses(Z) :- Z =#count{eqclass(X)}.
+counteqclasses(Z) :- Z = #count{eqclass(X)}.
 :- not diff.
 
 %maximize differences
-% #maximize[ not false = 0, diff(X,Y) @ 1 ].
-#maximize[ not false = 0, eqclass(X) @ 1 ].
+%#maximize { X: counteqclasses(X) }.
+%#maximize{ X : eqclass(X) }.
+#maximize[ not false, eqclass(X) @3 ].
+#maximize[ not false, diff(N1,N2) @2 ].
+#minimize[ false, pert(E,G) @1 ].
+
+% #minimize[ cexperiment(X) @ 1 ].
 
 
 #hide.
+
+% #show exp/1.
+
+#show pert/3.
+% #show readout/2.
+
 % #show diff/2.
-#show pert/2.
-#show readout/1.
 % #show sameclass/1.
+% #show eqclass/1.
 #show counteqclasses/1.
-% #show vlabel/3.
-#show difflabel/3.
+#show countdiff/1.
+
+#show difflabel/4.

@@ -1,6 +1,9 @@
 R = +
 B = -
 E = -
+C = -
+A = +
+A = -
 F = readout
 H = readout
 I = readout
