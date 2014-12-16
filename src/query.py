@@ -44,17 +44,18 @@ def get_experiments(nets,expvars,num):
       num_exp = String2TermSet('pexperiment('+str(i)+')')
       #print(num_exp)
       num_expf = num_exp.to_file('num_exp.lp')
+      #exit()
       prg = [netsf,expvarsf,num_expf, find_exp_prg,heu_prg ]
       coptions = '--opt-mode=optN --dom-mod=6 --heu=Domain'
       solver = GringoClasp(clasp_options=coptions)
       solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)
-      #print("\n",solutions[0].score[0],solutions[0].score[1])
+      print("\n",solutions[0].score[0],solutions[0].score[1])
       opt=solutions[0].score[0]
       if best == opt: best_found=True
       else:
         best = opt
         best_solutions=solutions
-      print(i,opt,best,best_found)
+      #print(i,opt,best,best_found)
 
     os.unlink(netsf)
     os.unlink(expvarsf)
