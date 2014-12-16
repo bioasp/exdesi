@@ -52,7 +52,7 @@ if __name__ == '__main__':
     #print(mu)
     
     print('\nCompute experiments ...',end='')
-    experiments = query.get_experiments(NETS,mu)
+    experiments = query.get_experiments(NETS,mu,10)
     print('done.')
     
     if experiments == [] :
@@ -63,7 +63,7 @@ if __name__ == '__main__':
       count=0
       for e in experiments :
         count = count+1
-        print("experiment",count,":")
+        print("experiment set",count,":")
         utils.print_experiment_table(e)
 
     utils.clean_up()

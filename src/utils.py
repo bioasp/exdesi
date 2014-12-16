@@ -62,16 +62,16 @@ def print_experiment_table(experimental_design) :
     for e in lo_experiments:
       print ('|',end='')
       for r in lo_readouts :
-        if r[0]==e : print (r[1],end='')
+        if r[0]==e : print (r[1],end=' ')
     print ('')
     
     #print prediction table content
     for n in lo_nets :
       print (n,end='')
       for e in lo_experiments:
-        print ('|',end='')
+        print ('| ',end='')
         for r in lo_readouts :
-          if r[0]==e : print (' ',difftables2[(e,n,r[1])],end=' ')
+          if r[0]==e : print (difftables2[(e,n,r[1])],end=' ')
       print ('')
 
 

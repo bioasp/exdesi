@@ -27,20 +27,56 @@ from pyasp.asp import *
 
 root = __file__.rsplit('/', 1)[0]
 find_exp_prg   =	root +'/encodings/find_experiment.lp'
+heu_prg   =        root +'/encodings/heuristic.lp'
 
-def get_experiments(nets,expvars):
+def get_experiments(nets,expvars,num):
     '''
     returns the experiments as a``TermSet`` object [instance].
     '''
     netsf = nets.to_file('nets.lp')
     expvarsf = expvars.to_file('expvars.lp')
-    #exit()
-    prg = [netsf,expvarsf, find_exp_prg]
-    coptions = '--opt-mode=optN '
-    solver = GringoClasp(clasp_options=coptions)
-    solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)
-    
+    best=0
+    best_solution=0
+    best_found=False
+    i=0
+    while i < num and not best_found :
+      i += 1
+      num_exp = String2TermSet('pexperiment('+str(i)+')')
+      #print(num_exp)
+      num_expf = num_exp.to_file('num_exp.lp')
+      prg = [netsf,expvarsf,num_expf, find_exp_prg,heu_prg ]
+      coptions = '--opt-mode=optN --dom-mod=6 --heu=Domain'
+      solver = GringoClasp(clasp_options=coptions)
+      solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)
+      #print("\n",solutions[0].score[0],solutions[0].score[1])
+      opt=solutions[0].score[0]
+      if best == opt: best_found=True
+      else:
+        best = opt
+        best_solutions=solutions
+      print(i,opt,best,best_found)
+
     os.unlink(netsf)
     os.unlink(expvarsf)
-    return solutions
+    os.unlink(num_expf)
+    return best_solutions
+
+
+
+
+#def get_experiments(nets,expvars):
+    #'''
+    #returns the experiments as a``TermSet`` object [instance].
+    #'''
+    #netsf = nets.to_file('nets.lp')
+    #expvarsf = expvars.to_file('expvars.lp')
+    ##exit()
+    #prg = [netsf,expvarsf, find_exp_prg]
+    #coptions = '--opt-mode=optN '
+    #solver = GringoClasp(clasp_options=coptions)
+    #solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)
+    
+    #os.unlink(netsf)
+    #os.unlink(expvarsf)
+    #return solutions
     

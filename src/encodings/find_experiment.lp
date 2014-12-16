@@ -1,9 +1,8 @@
 
-% 3 possible experiments
-pexperiment(1..3).
-cexperiment(X) :- pexperiment(X).
-%{cexperiment(X)} :- pexperiment(X).
-% :- cexperiment(X), pexperiment(X-1), not cexperiment(X-1).
+% possible experiments
+cexperiment(1..X) :- pexperiment(X).
+%:- cexperiment(X), pexperiment(X-1), not cexperiment(X-1).
+%cexperiment(X-1) :- cexperiment(X), pexperiment(X-1).
 
 %maximal 4 experiments
 %expmax(10).
@@ -50,7 +49,7 @@ biggestdiffpert(G,S,E1,E2) :- diffpert(G,S,E1,E2) , not hasbiggerdiffpert(G,S,E1
 
 
 % choose labeling
-1{vlabel(E,NET,G,-1), vlabel(E,NET,G,0), vlabel(E,NET,G,1), vlabel(E,NET,G,undef)}1 :- vertex(NET,G), cexperiment(E).
+1{vlabel(E,NET,G,-1), vlabel(E,NET,G,0), vlabel(E,NET,G,1), vlabel(E,NET,G,am)}1 :- vertex(NET,G), cexperiment(E).
 
 vlabel(E,N,G,1) :- vertex(N,G), pert(E,G,1).
 vlabel(E,N,G,-1):- vertex(N,G), pert(E,G,-1).
@@ -59,19 +58,19 @@ vlabel(E,N,G,0) :- vertex(N,G), pert(E,G,0).
 
 infl(E,N,G,1)  :- obs_elabel(N,A,G,1),  vlabel(E,N,A,1).
 infl(E,N,G,1)  :- obs_elabel(N,A,G,-1), vlabel(E,N,A,-1).
-infl(E,N,G,1)  :- edge(N,A,G), vlabel(E,N,A,undef).
+infl(E,N,G,1)  :- edge(N,A,G), vlabel(E,N,A,am).
 
 infl(E,N,G,-1) :- obs_elabel(N,A,G,-1), vlabel(E,N,A,1).
 infl(E,N,G,-1) :- obs_elabel(N,A,G,1),  vlabel(E,N,A,-1).
-infl(E,N,G,-1) :- edge(N,A,G), vlabel(E,N,A,undef).
+infl(E,N,G,-1) :- edge(N,A,G), vlabel(E,N,A,am).
 
 :- vlabel(E,N,G,0),     not pert(E,G), infl(E,N,G,S).
 :- vlabel(E,N,G,1),     not pert(E,G), not infl(E,N,G,1).
 :- vlabel(E,N,G,1),     not pert(E,G), infl(E,N,G,-1).
 :- vlabel(E,N,G,-1),    not pert(E,G), not infl(E,N,G,-1).
 :- vlabel(E,N,G,-1),    not pert(E,G), infl(E,N,G,1).
-:- vlabel(E,N,G,undef), not pert(E,G), not infl(E,N,G,1).
-:- vlabel(E,N,G,undef), not pert(E,G), not infl(E,N,G,-1).
+:- vlabel(E,N,G,am), not pert(E,G), not infl(E,N,G,1).
+:- vlabel(E,N,G,am), not pert(E,G), not infl(E,N,G,-1).
 
 
 getspos(E,N,X) :- vertex(N,X), pert(E,X,1).
@@ -86,12 +85,12 @@ getsneg(E,N,X) :- getspos(E,N,Y), not pert(E,X), obs_elabel(N,Y,X,-1).
 founded(E,N,X) :- vlabel(E,N,X, 1), getspos(E,N,X).
 % founded -1
 founded(E,N,X) :- vlabel(E,N,X,-1), getsneg(E,N,X).
-% founded undef
-founded(E,N,X) :- vlabel(E,N,X,undef), getspos(E,N,X), getsneg(E,N,X).
+% founded am
+founded(E,N,X) :- vlabel(E,N,X,am), getspos(E,N,X), getsneg(E,N,X).
 
 :- vlabel(E,N,X, 1), not founded(E,N,X).
 :- vlabel(E,N,X,-1), not founded(E,N,X).
-:- vlabel(E,N,X,undef), not founded(E,N,X).
+:- vlabel(E,N,X,am), not founded(E,N,X).
 
 
 % define when two signs are different
@@ -101,12 +100,12 @@ uneq(0,1).
 uneq(0,-1).
 uneq(-1,1).
 uneq(-1,0).
-uneq(undef,1).
-uneq(undef,0).
-uneq(undef,-1).
-uneq(1,undef).
-uneq(0,undef).
-uneq(-1,undef).
+uneq(am,1).
+uneq(am,0).
+uneq(am,-1).
+uneq(1,am).
+uneq(0,am).
+uneq(-1,am).
 
 
 % check whether labelings are different
@@ -144,16 +143,12 @@ eqclass(X) :- net(X) , not notunique(X).
 counteqclasses(Z) :- Z = #count{eqclass(X)}.
 :- not diff.
 
-%maximize differences
-%#maximize { X: counteqclasses(X) }.
-%#maximize{ X : eqclass(X) }.
-#maximize[ not false, eqclass(X) @3 ].
-#maximize[ not false, diff(N1,N2) @2 ].
+% maximize network clusters
+%#maximize[ not false, eqclass(X) @4 ].
+% maximize differences
+#maximize[ not false, diff(N1,N2) @3 ].
+%#minimize[ cexperiment(X) @ 2 ].
 #minimize[ false, pert(E,G) @1 ].
-
-% #minimize[ cexperiment(X) @ 1 ].
-
-
 #hide.
 
 % #show exp/1.
