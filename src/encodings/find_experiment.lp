@@ -17,7 +17,7 @@ pert(1,gen("B"),-1).
 :- pert(E,G,S1),pert(E,G,S2),S1!=S2.
 
 % choose experimental readouts (take all)
-readout(E,G) :- preadout(G), exp(E). 
+readout(G) :- preadout(G). 
 %{readout(E,G)} :- preadout(G), exp(E). 
 
 
@@ -53,10 +53,10 @@ getsneg(E,N,X) :- getsneg(E,N,Y), not pert(E,X), obs_elabel(N,Y,X,1).
 getsneg(E,N,X) :- getspos(E,N,Y), not pert(E,X), obs_elabel(N,Y,X,-1).
 
 
-vlabel(E,N,G,am) :- getspos(E,N,G), getsneg(E,N,G).
-vlabel(E,N,G,1) :- getspos(E,N,G), not getsneg(E,N,G).
-vlabel(E,N,G,-1):- getsneg(E,N,G), not getspos(E,N,G).
-vlabel(E,N,G,0) :- not getsneg(E,N,G), not getspos(E,N,G), exp(E), vertex(N,G).
+vlabel(E,N,G,am) :- readout(G), getspos(E,N,G), getsneg(E,N,G).
+vlabel(E,N,G,1)  :- readout(G), getspos(E,N,G), not getsneg(E,N,G).
+vlabel(E,N,G,-1) :- readout(G), getsneg(E,N,G), not getspos(E,N,G).
+vlabel(E,N,G,0)  :- readout(G), not getsneg(E,N,G), not getspos(E,N,G), exp(E), vertex(N,G).
 
 
 % define when two signs are different
@@ -75,8 +75,8 @@ uneq(-1,am).
 
 
 % check whether labelings are different
-difflabel(E,N1,G,S1) :- readout(E,G), vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1!=N2, uneq(S1,S2).
-diff(E,N1,N2) :- readout(E,G), vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1<N2, uneq(S1,S2).
+difflabel(E,N1,G,S1) :- readout(G), vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1!=N2, uneq(S1,S2).
+diff(E,N1,N2) :- readout(G), vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1<N2, uneq(S1,S2).
 diff(E) :- diff(E,N1,N2).
 diff(N1,N2) :- diff(E,N1,N2).
 countdiff(Z) :- Z = #count{diff(N1,N2)}.
@@ -116,7 +116,7 @@ counteqclasses(Z) :- Z = #count{eqclass(X)}.
 % #show exp/1.
 
 #show pert/3.
-% #show readout/2.
+% #show readout/1.
 
 % #show diff/2.
 % #show sameclass/1.
