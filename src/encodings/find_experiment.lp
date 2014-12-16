@@ -3,7 +3,7 @@
 exp(1..X) :- pexperiment(X).
 
 
-% check if a pert has influence on a readout in a network
+% check if a node has influence on a readout in a network
 hasinfl(X) :- preadout(R), obs_elabel(N,X,R,S).
 hasinfl(X) :- hasinfl(R), obs_elabel(N,X,R,S).
 
@@ -16,8 +16,13 @@ pert(1,gen("B"),-1).
 % no two pertubations in the same node
 :- pert(E,G,S1),pert(E,G,S2),S1!=S2.
 
+% check if a node has at least one pertubator in a network
+is_pertubed(X) :- pperturb(G,S), obs_elabel(N,G,X,S).
+is_pertubed(X) :- is_pertubed(G), obs_elabel(N,G,X,S).
+
+
 % choose experimental readouts (take all)
-readout(G) :- preadout(G). 
+readout(G) :- is_pertubed(G), preadout(G). 
 %{readout(E,G)} :- preadout(G), exp(E). 
 
 
