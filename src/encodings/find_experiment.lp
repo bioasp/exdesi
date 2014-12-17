@@ -1,28 +1,47 @@
 
+%done(1,B,-1).
+
 % possible experiments
 exp(1..X) :- pexperiment(X).
 
+% keep isolated vertices
+vertex(N,X) :- net(N), vertex(M,X).
+
 
 % check if a node has influence on a readout in a network
-hasinfl(X) :- preadout(R), obs_elabel(N,X,R,S).
-hasinfl(X) :- hasinfl(R), obs_elabel(N,X,R,S).
+hasinfl(X) :- preadout(Z), obs_elabel(N,X,Z,S).
+hasinfl(X) :- hasinfl(Z), obs_elabel(N,X,Z,S).
 
+
+has_pred(X)  :- vertex(N,X), obs_elabel(N,Y,X,S), Y!=X.
+must_zero(X) :- vertex(N,X), not has_pred(X).
+one_predessor_not_zero(X) :- obs_elabel(N,Y,X,S), not must_zero(Y).
+must_zero(X) :- vertex(N,X), not one_predessor_not_zero(X).
+% forbid 0-pertubations in nodes which must be zero anyway
+forbidden_pert(G,0) :- pperturb(G,0), must_zero(G).
 
 % choose experimental pertubations, filter those which have no influence on a readout
-{pert(E,G,S)} :- hasinfl(G), pperturb(G,S), exp(E). 
+{pert(E,G,S)} :- hasinfl(G), pperturb(G,S), exp(E).
+%{pert(E,G,S)} :- hasinfl(G), pperturb(G,S), not forbidden_pert(G,S), exp(E). 
 pert(E,G) :- pert(E,G,S).
-pert(1,gen("B"),-1).
+
+
 
 % no two pertubations in the same node
 :- pert(E,G,S1),pert(E,G,S2),S1!=S2.
 
-% check if a node has at least one pertubator in a network
-is_pertubed(X) :- pperturb(G,S), obs_elabel(N,G,X,S).
-is_pertubed(X) :- is_pertubed(G), obs_elabel(N,G,X,S).
+
+is_perturbed1(X) :- pperturb(X,S).
+is_perturbed1(Y) :- is_perturbed1(X), obs_elabel(N,X,Y,S).
+
+
+% check if a node has at least one pertubator in a network in an experiment
+is_pertubed(E,X) :- is_perturbed1(X), pert(E,X).
+is_pertubed(E,Y) :- is_perturbed1(Y), is_pertubed(E,X), obs_elabel(N,X,Y,S).
 
 
 % choose experimental readouts (take all)
-readout(G) :- is_pertubed(G), preadout(G). 
+readout(E,G) :- is_perturbed1(G), is_pertubed(E,G), preadout(G). 
 %{readout(E,G)} :- preadout(G), exp(E). 
 
 
@@ -57,11 +76,10 @@ getsneg(E,N,X) :- vertex(N,X), pert(E,X,-1).
 getsneg(E,N,X) :- getsneg(E,N,Y), not pert(E,X), obs_elabel(N,Y,X,1).
 getsneg(E,N,X) :- getspos(E,N,Y), not pert(E,X), obs_elabel(N,Y,X,-1).
 
-
-vlabel(E,N,G,am) :- readout(G), getspos(E,N,G), getsneg(E,N,G).
-vlabel(E,N,G,1)  :- readout(G), getspos(E,N,G), not getsneg(E,N,G).
-vlabel(E,N,G,-1) :- readout(G), getsneg(E,N,G), not getspos(E,N,G).
-vlabel(E,N,G,0)  :- readout(G), not getsneg(E,N,G), not getspos(E,N,G), exp(E), vertex(N,G).
+vlabel(E,N,G,am) :- readout(E,G), getspos(E,N,G), getsneg(E,N,G).
+vlabel(E,N,G,1)  :- readout(E,G), getspos(E,N,G), not getsneg(E,N,G).
+vlabel(E,N,G,-1) :- readout(E,G), getsneg(E,N,G), not getspos(E,N,G).
+vlabel(E,N,G,0)  :- readout(E,G), not getsneg(E,N,G), not getspos(E,N,G), exp(E), vertex(N,G).
 
 
 % define when two signs are different
@@ -80,8 +98,8 @@ uneq(-1,am).
 
 
 % check whether labelings are different
-difflabel(E,N1,G,S1) :- readout(G), vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1!=N2, uneq(S1,S2).
-diff(E,N1,N2) :- readout(G), vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1<N2, uneq(S1,S2).
+difflabel(E,N1,G,S1) :- readout(E,G), vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1!=N2, uneq(S1,S2).
+diff(E,N1,N2) :- readout(E,G), vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1<N2, uneq(S1,S2).
 diff(E) :- diff(E,N1,N2).
 diff(N1,N2) :- diff(E,N1,N2).
 countdiff(Z) :- Z = #count{diff(N1,N2)}.
@@ -121,7 +139,7 @@ counteqclasses(Z) :- Z = #count{eqclass(X)}.
 % #show exp/1.
 
 #show pert/3.
-% #show readout/1.
+% #show readout/2.
 
 % #show diff/2.
 % #show sameclass/1.
