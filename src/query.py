@@ -36,25 +36,30 @@ def get_experiments(nets,expvars,num):
     netsf = nets.to_file('nets.lp')
     expvarsf = expvars.to_file('expvars.lp')
     best=0
-    best_solution=0
+    best_solutions=[]
     best_found=False
     i=0
     while i < num and not best_found :
       i += 1
       num_exp = String2TermSet('pexperiment('+str(i)+')')
-      #print(num_exp)
       num_expf = num_exp.to_file('num_exp.lp')
-      #exit()
-      prg = [netsf,expvarsf,num_expf, find_exp_prg,heu_prg ]
-      coptions = '--opt-mode=optN --dom-mod=6 --heu=Domain'
+      #prg = [netsf,expvarsf,num_expf, find_exp_prg,heu_prg ]
+      #coptions = '--opt-mode=optN --dom-mod=6 --heu=Domain'
+
+      prg = [netsf,expvarsf,num_expf, find_exp_prg ]
+      coptions = '--opt-mode=optN'
+      #coptions = '--opt-mode=optN --opt-strategy=5'
+      
       solver = GringoClasp(clasp_options=coptions)
       solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)
-      print("\n",solutions[0].score[0],solutions[0].score[1])
+      print("\n",solutions[0].score[0])
+      #print(solutions[0].score[1])
       opt=solutions[0].score[0]
       if best == opt: best_found=True
       else:
         best = opt
         best_solutions=solutions
+          
       #print(i,opt,best,best_found)
 
     os.unlink(netsf)
