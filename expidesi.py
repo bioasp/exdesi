@@ -52,7 +52,8 @@ if __name__ == '__main__':
     #print(mu)
     
     print('\nCompute experiments ...',end='')
-    experiments = query.get_experiments(NETS,mu,10)
+    max_number_experiments = 10 
+    experiments = query.get_experiments(NETS,mu,max_number_experiments)
     print('done.')
     
     if experiments == [] :
