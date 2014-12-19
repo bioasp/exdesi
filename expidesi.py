@@ -43,8 +43,7 @@ if __name__ == '__main__':
       net = bioquali.readSIFGraph(net_string)
       NETS = TermSet(NETS.union(net))
       print('done.')
-    #NETS.to_file('nets2.lp')
-    #exit()
+
 
     print('\nReading experimental variables',exp_string, '...',end='')
     mu = bioquali.readProfile(exp_string)

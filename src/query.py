@@ -35,7 +35,7 @@ def get_experiments(nets,expvars,num):
     '''
     netsf = nets.to_file('nets.lp')
     expvarsf = expvars.to_file('expvars.lp')
-    best=0
+    best=-1
     best_solutions=[]
     best_found=False
     i=0
@@ -43,6 +43,7 @@ def get_experiments(nets,expvars,num):
       i += 1
       num_exp = String2TermSet('pexperiment('+str(i)+')')
       num_expf = num_exp.to_file('num_exp.lp')
+      #exit()
       #prg = [netsf,expvarsf,num_expf, find_exp_prg,heu_prg ]
       #coptions = '--opt-mode=optN --dom-mod=6 --heu=Domain'
 
@@ -52,13 +53,19 @@ def get_experiments(nets,expvars,num):
       
       solver = GringoClasp(clasp_options=coptions)
       solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)
-      print("\n",solutions[0].score[0])
+
       #print(solutions[0].score[1])
-      opt=solutions[0].score[0]
-      if best == opt: best_found=True
+      
+      if solutions == []: best_found=True
       else:
-        best = opt
-        best_solutions=solutions
+        #print(solutions)
+        #print("\n",solutions[0].score[0])
+        opt=solutions[0].score[0]
+        if best == opt:
+          best_found=True
+        else:
+          best = opt
+          best_solutions=solutions
           
       #print(i,opt,best,best_found)
 

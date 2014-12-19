@@ -42,7 +42,7 @@ forbidden_pert(G,0) :- pperturb(G,0), must_zero(G).
 {pert(E,G,S)} :- hasinfl(G), pperturb(G,S), not forbidden_pert(G,S), exp(E). 
 pert(E,G) :- pert(E,G,S).
 
-exp(1..1).
+%exp(1..1).
 %pert(1,gen("E"),-1).
 
 %pert(2,gen("A"),-1).
@@ -96,7 +96,12 @@ frompert(X) :- obs_elabel(N,Y,X,S), frompert(Y).
 
 both(X) :- wtoreadout(X), frompert(X).
 
+count_edges(N,Z) :-  Z = #count{obs_elabel(N,X,Y,S)}, net(N).
 
+path(E,N,X,Y, l(X,Y),1) :- pert(E,X),      obs_elabel(N,X,Y, S), npert(E,Y).
+path(E,N,X,Y, l(PXZ,Y),C+1) :- path(E,N,X,Z,PXZ,C), obs_elabel(N,Z,Y, S), npert(E,Y), count_edges(N,C2), C+1<C2.
+
+path(PATH) :- path(E,N,X,Y, PATH,C).
 npert(E,X) :-  vertex(X), exp(E), not pert(E,X).
 
 pos_path(E,N,X,Y, l(X,Y) ) :- pert(E,X),      obs_elabel(N,X,Y, 1), npert(E,Y).
@@ -106,10 +111,10 @@ pos_path(E,N,X,Y, l(PXZ,Y)) :- pos_path(E,N,X,Z,PXZ), obs_elabel(N,Z,Y, 1), nper
 pos_path(E,N,X,Y, l(PXZ,Y)) :- neg_path(E,N,X,Z,PXZ), obs_elabel(N,Z,Y,-1), npert(E,Y), notin(Y,PXZ).
 
 neg_path(E,N,X,Y, l(PXZ,Y)) :- neg_path(E,N,X,Z,PXZ), obs_elabel(N,Z,Y, 1), npert(E,Y), notin(Y,PXZ).
-neg_path(E,N,X,Y, l(PXZ,Y)) :- neg_path(E,N,X,Z,PXZ), obs_elabel(N,Z,Y,-1), npert(E,Y), notin(Y,PXZ).
+neg_path(E,N,X,Y, l(PXZ,Y)) :- pos_path(E,N,X,Z,PXZ), obs_elabel(N,Z,Y,-1), npert(E,Y), notin(Y,PXZ).
 
 notin(X, Y) :- X!=Y, both(X), both(Y),pperturb(Y,S).
-notin(X, l(Y,Z)) :- X!=Z, notin(X,Y), notin(Z,Y).
+notin(X, l(Y,Z)) :- X!=Z, notin(X,Y), notin(Z,Y),path(l(Y,Z)).
 
 
 getspos(E,N,Y) :- pert(E,X, 1), readout(E,Y), pos_path(E,N,X,Y,PATH).
@@ -184,7 +189,7 @@ counteqclasses(Z) :- Z = #count{eqclass(X)}.
 % #show exp/1.
 
 #show pert/3.
-#show pert/2.
+%#show pert/2.
 % #show readout/2.
 %#show notin/2.
 
