@@ -44,6 +44,7 @@ def print_experiment_table(experimental_design) :
     lo_nets = sorted(list(nets))
     lo_readouts = list(readouts)
     lo_experiments = list(experiments)
+    lo_experiments.sort()
     print('We can differentiate',classes,'classes of networks with',len(experiments),'experiments.')
 
     for e in lo_experiments :
@@ -55,26 +56,40 @@ def print_experiment_table(experimental_design) :
     print ('')
     
     #print prediction table header
-    print('        ',end='')
     for e in lo_experiments :
-      print ('| experiment',e,end=' ')
+      print ('experiment ',e,end=' | ')
     print ('')
-    print('Network',end=' ')
     for e in lo_experiments:
-      print ('| ',end='')
       for r in lo_readouts :
         if r[0]==e : print (r[1],end=' ')
-    print ('')
+      print ('| ',end='')
+    print('Network')
     
     #print prediction table content
+    rows=[]
+    
     for n in lo_nets :
-      print (n,end=' ')
+      row=[]
+      #print (n,end=' ')
       for e in lo_experiments:
-        print ('| ',end='')
+        #print ('| ',end='')
         for r in lo_readouts :
-          if r[0]==e : print (difftables2[(e,n,r[1])],end=' ')
-      print ('')
+          if r[0]==e :
+            #print (difftables2[(e,n,r[1])],end=' ')
+            row.append(difftables2[(e,n,r[1])])
+        row.append('|')
+      #print ('')
+      row.append(n)
+      rows.append(row)
 
+    rows.sort()
+    for r in rows :
+      for e in r :
+        if e == "1" :   print("  1 ",end='')
+        elif e == '0' : print("  0 ",end='')
+        elif e == "|" : print("|",end='')
+        else: print('',e,'',end='')
+      print('')
 
 
 def clean_up() :
