@@ -49,17 +49,29 @@ if __name__ == '__main__':
     mu = bioquali.readProfile(exp_string)
     print('done.')
     #print(mu)
-    
-    print('\nCompute experiments ...',end='')
-    max_number_experiments = 10 
+
+
+    print('\nCompute best single experiment ...',end='')
+    max_number_experiments = 1
     experiments = query.get_experiments(NETS,mu,max_number_experiments)
     print('done.')
-    
+
     if experiments == [] :
       print("no experiment can distinguish the networks.")
       print("add more readouts or more perturbations.")
-      
+
     else:
+      count=0
+      for e in experiments :
+        count = count+1
+        print("optimal experiment",count,":")
+        utils.print_experiment_table(e)
+    
+      print('\nCompute optimal experiment sets ...',end='')
+      max_number_experiments = 10
+      experiments = query.get_experiments(NETS,mu,max_number_experiments)
+      print('done.')
+
       count=0
       for e in experiments :
         count = count+1
