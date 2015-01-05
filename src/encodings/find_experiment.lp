@@ -43,9 +43,9 @@ forbidden_pert(G,0) :- pperturb(G,0), must_zero(G).
 pert(E,G) :- pert(E,G,S).
 
 %exp(1..1).
-%pert(1,gen("E"),-1).
+%pert(1,gen("R"),-1).
 
-%pert(2,gen("A"),-1).
+%pert(1,gen("A"),-1).
 %pert(2,gen("R"),1).
 
 %pert(3,gen("E"),-1).
@@ -179,7 +179,7 @@ eqclass(X) :- net(X) , not notunique(X).
 counteqclasses(Z) :- Z = #count{eqclass(X)}.
 
 % maximize network clusters
-%#maximize[ not false, eqclass(X) @4 ].
+#maximize[ not false, eqclass(X) @4 ].
 % maximize differences
 #maximize[ not false, diff(N1,N2) @3 ].
 %#minimize[ exp(X) @ 2 ].
