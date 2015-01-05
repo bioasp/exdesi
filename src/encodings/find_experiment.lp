@@ -179,7 +179,7 @@ eqclass(X) :- net(X) , not notunique(X).
 counteqclasses(Z) :- Z = #count{eqclass(X)}.
 
 % maximize network clusters
-#maximize[ not false, eqclass(X) @4 ].
+%#maximize[ not false, eqclass(X) @4 ].
 % maximize differences
 #maximize[ not false, diff(N1,N2) @3 ].
 %#minimize[ exp(X) @ 2 ].

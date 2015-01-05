@@ -57,7 +57,7 @@ def print_experiment_table(experimental_design) :
     
     #print prediction table header
     for e in lo_experiments :
-      print ('experiment ',e,end=' | ')
+      print ('experiment',e,end=' | ')
     print ('')
     for e in lo_experiments:
       for r in lo_readouts :

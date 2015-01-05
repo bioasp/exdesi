@@ -26,15 +26,16 @@ import tempfile
 from pyasp.asp import *
 
 root = __file__.rsplit('/', 1)[0]
-find_exp_prg   =	root +'/encodings/find_experiment.lp'
+find_exp_prg   		=	root +'/encodings/find_experiment.lp'
+find_best_singexp_prg   =	root +'/encodings/find_best_single_experiment.lp'
 heu_prg   =        root +'/encodings/heuristic.lp'
 
 def get_experiments(nets,expvars,num):
     '''
     returns the experiments as a``TermSet`` object [instance].
     '''
-    netsf = nets.to_file('nets.lp')
-    expvarsf = expvars.to_file('expvars.lp')
+    netsf = nets.to_file()
+    expvarsf = expvars.to_file()
     best=-1
     best_solutions=[]
     best_found=False
@@ -42,13 +43,13 @@ def get_experiments(nets,expvars,num):
     while i < num and not best_found :
       i += 1
       num_exp = String2TermSet('pexperiment('+str(i)+')')
-      num_expf = num_exp.to_file('num_exp.lp')
+      num_expf = num_exp.to_file()
       #exit()
       #prg = [netsf,expvarsf,num_expf, find_exp_prg,heu_prg ]
       #coptions = '--opt-mode=optN --dom-mod=6 --heu=Domain'
 
       prg = [netsf,expvarsf,num_expf, find_exp_prg ]
-      coptions = '--opt-mode=optN'
+      coptions = '--project --opt-mode=optN'
       #coptions = '--opt-mode=optN --opt-strategy=5'
       
       solver = GringoClasp(clasp_options=coptions)
@@ -73,6 +74,29 @@ def get_experiments(nets,expvars,num):
     os.unlink(expvarsf)
     os.unlink(num_expf)
     return best_solutions
+    
+def get_best_single_experiments(nets,expvars):
+    '''
+    returns the experiments as a``TermSet`` object [instance].
+    '''
+    netsf = nets.to_file()
+    expvarsf = expvars.to_file()
+    #exit()
+    best=-1
+    best_solutions=[]
+    best_found=False
+
+
+    prg = [netsf,expvarsf, find_best_singexp_prg ]
+    coptions = '--project --opt-mode=optN'
+      
+    solver = GringoClasp(clasp_options=coptions)
+    solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)
+
+    os.unlink(netsf)
+    os.unlink(expvarsf)
+    return solutions
+
 
 
 

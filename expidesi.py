@@ -52,8 +52,7 @@ if __name__ == '__main__':
 
 
     print('\nCompute best single experiment ...',end='')
-    max_number_experiments = 1
-    experiments = query.get_experiments(NETS,mu,max_number_experiments)
+    experiments = query.get_best_single_experiments(NETS,mu)
     print('done.')
 
     if experiments == [] :
@@ -64,10 +63,10 @@ if __name__ == '__main__':
       count=0
       for e in experiments :
         count = count+1
-        print("optimal experiment",count,":")
+        print("best single experiment",count,":")
         utils.print_experiment_table(e)
     
-      print('\nCompute optimal experiment sets ...',end='')
+      print('\nCompute best experiment sets ...',end='')
       max_number_experiments = 10
       experiments = query.get_experiments(NETS,mu,max_number_experiments)
       print('done.')
@@ -75,7 +74,7 @@ if __name__ == '__main__':
       count=0
       for e in experiments :
         count = count+1
-        print("experiment set",count,":")
+        print("best experiment set",count,":")
         utils.print_experiment_table(e)
 
     utils.clean_up()
