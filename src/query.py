@@ -49,18 +49,18 @@ def get_experiments(nets,expvars,num):
       #coptions = '--opt-mode=optN --dom-mod=6 --heu=Domain'
 
       prg = [netsf,expvarsf,num_expf, find_exp_prg ]
-      coptions = '--project --opt-mode=optN'
+      coptions = '--project --opt-mode=optN --opt-strategy=0 --opt-heuristic'
       #coptions = '--opt-mode=optN --opt-strategy=5'
       
       solver = GringoClasp(clasp_options=coptions)
       solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)
 
+      #print(solutions[0].score[0])
       #print(solutions[0].score[1])
+      #print(solutions[0].score[2])    
       
       if solutions == []: best_found=True
       else:
-        #print(solutions)
-        #print("\n",solutions[0].score[0])
         opt=solutions[0].score[0]
         if best == opt:
           best_found=True
@@ -68,8 +68,6 @@ def get_experiments(nets,expvars,num):
           best = opt
           best_solutions=solutions
           
-      #print(i,opt,best,best_found)
-
     os.unlink(netsf)
     os.unlink(expvarsf)
     os.unlink(num_expf)
@@ -88,7 +86,7 @@ def get_best_single_experiments(nets,expvars):
 
 
     prg = [netsf,expvarsf, find_best_singexp_prg ]
-    coptions = '--project --opt-mode=optN'
+    coptions = '--project --opt-mode=optN --opt-strategy=0 --opt-heuristic'
       
     solver = GringoClasp(clasp_options=coptions)
     solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)
@@ -98,22 +96,4 @@ def get_best_single_experiments(nets,expvars):
     return solutions
 
 
-
-
-
-#def get_experiments(nets,expvars):
-    #'''
-    #returns the experiments as a``TermSet`` object [instance].
-    #'''
-    #netsf = nets.to_file('nets.lp')
-    #expvarsf = expvars.to_file('expvars.lp')
-    ##exit()
-    #prg = [netsf,expvarsf, find_exp_prg]
-    #coptions = '--opt-mode=optN '
-    #solver = GringoClasp(clasp_options=coptions)
-    #solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)
-    
-    #os.unlink(netsf)
-    #os.unlink(expvarsf)
-    #return solutions
     
