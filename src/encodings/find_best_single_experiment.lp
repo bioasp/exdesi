@@ -125,19 +125,25 @@ uneq(0,1).
 uneq(0,-1).
 uneq(-1,1).
 uneq(-1,0).
-uneq(am,1).
-uneq(am,0).
-uneq(am,-1).
-uneq(1,am).
-uneq(0,am).
-uneq(-1,am).
+
+uneq2(am,1).
+uneq2(am,0).
+uneq2(am,-1).
+uneq2(1,am).
+uneq2(0,am).
+uneq2(-1,am).
 
 
 % check whether labelings are different
 difflabel(1,N1,G,S1) :- vlabel(N1,G,S1), vlabel(N2,G,S2), N1!=N2, uneq(S1,S2).
-diff(N1,N2)          :-  vlabel(N1,G,S1), vlabel(N2,G,S2), N1<N2, uneq(S1,S2).
-diff :- diff(N1,N2).
+diff1(N1,N2)         :- vlabel(N1,G,S1), vlabel(N2,G,S2), N1<N2, uneq(S1,S2).
 
+% check whether labelings MAYBE different
+difflabel(1,N1,G,S1) :- vlabel(N1,G,S1), vlabel(N2,G,S2), N1!=N2, uneq2(S1,S2).
+diff(N1,N2)          :- vlabel(N1,G,S1), vlabel(N2,G,S2), N1<N2, uneq2(S1,S2).
+
+diff(N1,N2)  :- diff1(N1,N2).
+diff :- diff(N1,N2).
 countdiff(Z) :- Z = #count{diff(N1,N2)}.
 
 % every experiment must distinguish atleast 2 network classes
@@ -155,9 +161,10 @@ eqclass(X) :- net(X) , not notunique(X).
 counteqclasses(Z) :- Z = #count{eqclass(X)}.
 
 % maximize network clusters
-#maximize[ not false, eqclass(X) @3 ].
+%#maximize[ not false, eqclass(X) @4 ].
 % maximize differences
-#maximize[ not false, diff(N1,N2) @2 ].
+#maximize[ not false, diff(N1,N2) @3 ].
+#maximize[ not false, diff1(N1,N2) @2 ].
 % minimize pertubations
 #minimize[ false, pert(G) @1 ].
 #hide.
