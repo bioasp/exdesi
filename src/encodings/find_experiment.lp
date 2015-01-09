@@ -85,7 +85,6 @@ biggestdiffpert(G,S,E1,E2) :- diffpert(G,S,E1,E2) , not hasbiggerdiffpert(G,S,E1
 :- exp(E1),exp(E2), E1<E2, biggestdiffpert(G,S,E1,E2), pert(E1,G,S), npert(E2,G,S).
 
 
-
 % compute labeling
 
 wtoreadout(X) :- preadout(X), is_perturbed1(X).
@@ -139,32 +138,39 @@ uneq(0,1).
 uneq(0,-1).
 uneq(-1,1).
 uneq(-1,0).
-uneq(am,1).
-uneq(am,0).
-uneq(am,-1).
-uneq(1,am).
-uneq(0,am).
-uneq(-1,am).
+
+uneq2(am,1).
+uneq2(am,0).
+uneq2(am,-1).
+uneq2(1,am).
+uneq2(0,am).
+uneq2(-1,am).
+
 
 
 % check whether labelings are different
 difflabel(E,N1,G,S1) :- vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1!=N2, uneq(S1,S2).
-diff(E,N1,N2)        :-  vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1<N2, uneq(S1,S2).
+diff1(E,N1,N2)       :- vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1<N2, uneq(S1,S2).
+diff1(N1,N2) :- diff1(E,N1,N2).
+
+% check whether labelings MAYBE different
+difflabel(E,N1,G,S1) :- vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1!=N2, uneq2(S1,S2).
+diff(E,N1,N2)        :- vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1<N2, uneq2(S1,S2).
+
+
+diff(E,N1,N2)  :- diff1(E,N1,N2).
 diff(E) :- diff(E,N1,N2).
 diff(N1,N2) :- diff(E,N1,N2).
 countdiff(Z) :- Z = #count{diff(N1,N2)}.
 
-
 net(N) :- vertex(N,X).
 
 same(N1,N2) :- net(N1), net(N2), N1<N2, not diff(N1,N2).
-%same(E,N1,N2) :- net(N1), net(N2),N1<N2, exp(E), not diff(E,N1,N2).
-
 
 % every experiment must distinguish atleast 2 network classes
 :- exp(E), not diff(E).
 
-% each further experiment must distinguish atleast 1 more network class
+% each further experiment must distinguish atleast 1 more network
 sdiff(E,N1,N2) :- exp(E), exp(E2), E2<=E, diff(E2,N1,N2).
 newdiff(E) :-  exp(E), exp(E2), E2<E, diff(E,N1,N2), not sdiff(E2,N1,N2).
 :- exp(E1), exp(E2), E2>E1, not newdiff(E2).
@@ -182,7 +188,7 @@ counteqclasses(Z) :- Z = #count{eqclass(X)}.
 %#maximize[ not false, eqclass(X) @4 ].
 % maximize differences
 #maximize[ not false, diff(N1,N2) @3 ].
-%#minimize[ exp(X) @ 2 ].
+#maximize[ not false, diff1(N1,N2) @2 ].
 #minimize[ false, pert(E,G) @1 ].
 #hide.
 
