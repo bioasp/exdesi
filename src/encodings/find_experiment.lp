@@ -53,27 +53,24 @@ pert(E,G) :- pert(E,G,S).
 
 
 
-
 % no two pertubations in the same node
 :- pert(E,G,S1), pert(E,G,S2),S1!=S2.
 
-
-is_perturbed1(X) :- pperturb(X,S).
-is_perturbed1(Y) :- is_perturbed1(X), obs_elabel(N,X,Y,S).
+pinfluenced(X) :- pperturb(X,S).
+pinfluenced(Y) :- pinfluenced(X), obs_elabel(N,X,Y,S).
 
 
 % check if a node has at least one pertubator in a network in an experiment
-is_pertubed(E,X) :- is_perturbed1(X), pert(E,X).
-is_pertubed(E,Y) :- is_perturbed1(Y), is_pertubed(E,X), obs_elabel(N,X,Y,S).
+influenced(E,X) :- pert(E,X).
+influenced(E,Y) :- influenced(E,X), obs_elabel(N,X,Y,S).
 
 
 % choose experimental readouts (take all)
-readout(E,G) :- is_perturbed1(G), is_pertubed(E,G), preadout(G). 
+readout(E,G) :- pinfluenced(G), influenced(E,G), preadout(G). 
 %{readout(E,G)} :- preadout(G), exp(E). 
 
 
 npert(E,G,S) :- pperturb(G,S), exp(E), not pert(E,G,S).
-
 
 
 % force total order biggest different pertubation last
@@ -85,15 +82,24 @@ biggestdiffpert(G,S,E1,E2) :- diffpert(G,S,E1,E2) , not hasbiggerdiffpert(G,S,E1
 :- exp(E1),exp(E2), E1<E2, biggestdiffpert(G,S,E1,E2), pert(E1,G,S), npert(E2,G,S).
 
 
+
 % compute labeling
 
-wtoreadout(X) :- preadout(X), is_perturbed1(X).
-wtoreadout(X) :- obs_elabel(N,X,Y,S), wtoreadout(Y).
+% TODO besseren namen suchen
+wtoreadout(X) :- preadout(X), pinfluenced(X).
+wtoreadout(X) :- obs_elabel(N,X,Y,S), wtoreadout(Y), pinfluenced(X).
 
-frompert(X) :- pperturb(X,S), hasinfl(X).
-frompert(X) :- obs_elabel(N,Y,X,S), frompert(Y).
+% wenn es in keinem netzwerk einen weg zum readout gibt dann ist es keine lösung
+:- pert(X), not wtoreadout(X).
 
-both(X) :- wtoreadout(X), frompert(X).
+
+% frompert ist überlüssig
+%frompert(X) :- pperturb(X,S), hasinfl(X).
+%frompert(X) :- obs_elabel(N,Y,X,S), frompert(Y).
+
+% both sollte wtoreadout sein
+%both(X) :- wtoreadout(X), frompert(X).
+both(X) :- wtoreadout(X).
 
 count_edges(N,Z) :-  Z = #count{obs_elabel(N,X,Y,S)}, net(N).
 
@@ -131,6 +137,8 @@ vlabel(E,N,G,0)  :- readout(E,G), not getsneg(E,N,G), not getspos(E,N,G), exp(E)
 vlabel(E,N,G,0)  :- readout(E,G), not getsneg(E,N,G), not getspos(E,N,G), exp(E), vertex(N,G).
 
 
+
+
 % define when two signs are different
 uneq(1,0).
 uneq(1,-1).
@@ -150,11 +158,13 @@ uneq2(-1,am).
 
 % check whether labelings are different
 difflabel(E,N1,G,S1) :- vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1!=N2, uneq(S1,S2).
+diffreadout(G) :- vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1!=N2, uneq(S1,S2).
 diff1(E,N1,N2)       :- vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1<N2, uneq(S1,S2).
 diff1(N1,N2) :- diff1(E,N1,N2).
 
 % check whether labelings MAYBE different
 difflabel(E,N1,G,S1) :- vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1!=N2, uneq2(S1,S2).
+diffreadout(G) :- vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1!=N2, uneq2(S1,S2).
 diff(E,N1,N2)        :- vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1<N2, uneq2(S1,S2).
 
 
@@ -174,6 +184,18 @@ same(N1,N2) :- net(N1), net(N2), N1<N2, not diff(N1,N2).
 sdiff(E,N1,N2) :- exp(E), exp(E2), E2<=E, diff(E2,N1,N2).
 newdiff(E) :-  exp(E), exp(E2), E2<E, diff(E,N1,N2), not sdiff(E2,N1,N2).
 :- exp(E1), exp(E2), E2>E1, not newdiff(E2).
+
+
+
+
+% who is influencing the readout that is different in two candidate network
+hasinfl_diffreadout(X,N) :- diffreadout(Z), obs_elabel(N,X,Z,S).
+hasinfl_diffreadout(X,N) :- hasinfl_diffreadout(Z), obs_elabel(N,X,Z,S).
+hasinfl_diffreadout(X) :- hasinfl_diffreadout(X,N).
+% jede pertubation muss einen underschied in einem readout verantworten
+:- pert(X), not hasinfl_diffreadout(X).
+
+
 
 countpert(E,Z) :- Z = #count{ pert(E,G)}, exp(E).
 
