@@ -1,9 +1,10 @@
 
-done(1,gen("B"),-1).
-done(2,gen("R"),1).
-done(3,gen("E"),-1).
-done(4,gen("B"),-1).
-done(4,gen("E"),-1).
+% define already done experiments
+%done(1,gen("B"),-1).
+%done(2,gen("R"),1).
+%done(3,gen("E"),-1).
+%done(4,gen("B"),-1).
+%done(4,gen("E"),-1).
 
 donexp(DE) :- done(DE,G,S).
 
@@ -161,21 +162,21 @@ difflabel(E,N1,G,S1) :- vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1!=N2, uneq(S1,S2
 diffreadout(G) :- vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1!=N2, uneq(S1,S2).
 diff1(E,N1,N2)       :- vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1<N2, uneq(S1,S2).
 diff1(N1,N2) :- diff1(E,N1,N2).
+countdiff1(Z) :- Z = #count{diff1(N1,N2)}.
 
 % check whether labelings MAYBE different
 difflabel(E,N1,G,S1) :- vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1!=N2, uneq2(S1,S2).
 diffreadout(G) :- vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1!=N2, uneq2(S1,S2).
-diff(E,N1,N2)        :- vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1<N2, uneq2(S1,S2).
-
+diff2(E,N1,N2)        :- vlabel(E,N1,G,S1), vlabel(E,N2,G,S2), N1<N2, uneq2(S1,S2).
+countdiff2(Z) :- Z = #count{diff2(N1,N2)}.
 
 diff(E,N1,N2)  :- diff1(E,N1,N2).
+diff(E,N1,N2)  :- diff2(E,N1,N2).
 diff(E) :- diff(E,N1,N2).
-diff(N1,N2) :- diff(E,N1,N2).
-countdiff(Z) :- Z = #count{diff(N1,N2)}.
 
 net(N) :- vertex(N,X).
 
-same(N1,N2) :- net(N1), net(N2), N1<N2, not diff(N1,N2).
+same(N1,N2) :- net(N1), net(N2), N1<N2, not diff1(N1,N2), not diff2(N1,N2).
 
 % every experiment must distinguish atleast 2 network classes
 :- exp(E), not diff(E).
@@ -207,29 +208,20 @@ eqclass(X) :- net(X) , not notunique(X).
 counteqclasses(Z) :- Z = #count{eqclass(X)}.
 
 % maximize network clusters
-%#maximize[ not false, eqclass(X) @4 ].
+
 % maximize differences
-#maximize[ not false, diff(N1,N2) @3 ].
-#maximize[ not false, diff1(N1,N2) @2 ].
+#maximize[ not false, diff1(N1,N2) @3 ].
+#maximize[ not false, diff2(N1,N2) @2 ].
 #minimize[ false, pert(E,G) @1 ].
 #hide.
 
 % #show exp/1.
 
 #show pert/3.
-%#show pert/2.
-% #show readout/2.
-%#show notin/2.
 
-% #show diff/2.
-% #show sameclass/1.
-% #show eqclass/1.
 #show counteqclasses/1.
-#show countdiff/1.
-#show pos_path/5.
-#show neg_path/5.
-%#show npert/2.
 
-#show getspos/3.
-%#show vlabel/4.
+
+
+
 #show difflabel/4.

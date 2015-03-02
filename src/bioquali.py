@@ -28,10 +28,6 @@ def parse_val(s):
     if s == '+': return '1'
     elif s == '-': return '-1'
     elif s == '0': return '0'
-    elif s == 'nc': return '0'
-    elif s == 'notPlus': return 'notPlus'    
-    elif s == 'notMinus': return 'notMinus'        
-    elif s == 'input': return 'input'
     elif s == 'readout': return 'readout'
     else: 
         print(s)
@@ -62,8 +58,8 @@ def readSIFGraph(filename):
     return accu
 
 
-
-def readProfile(filename):
+#read experiment variables (possible perturbations, readouts)
+def readExpVar(filename):
     GENE_ID = '[-a-zA-Z0-9_:\(\)/]+'
     VAL = '(-|\+|0|nc|readout|input|notPlus|notMinus)'
     file = open(filename,'r')
@@ -87,5 +83,42 @@ def readProfile(filename):
         line_number+=1
     return accu
 
-
+#read excluded experiments
+def readExcludedExp(filename):
+  
+    GENE_ID = '[-a-zA-Z0-9_:\(\)/]+'
+    VAL = '(-|\+|0|nc|readout|input|notPlus|notMinus)'
+    file = open(filename,'r')
+    val_re = '(?P<genid>'+GENE_ID+')(\s)*=(\s)*(?P<sign>'+VAL+')'
+    val = re.compile(val_re)
+    line_number = 1
+    line = file.readline()
+    accu = TermSet()
+    token= 'experiment'
+    expident_re = 'experiment(\s)+(?P<expid>'+GENE_ID+'):'
+    expident = re.compile(expident_re)
+    expid = '1'
+    while line:
+        vm = expident.match(line)
+        if vm : 
+           expid = vm.group('expid')
+           #print('new expid:', expid)
+           line = file.readline()
+           line_number+=1
+        else:
+          #print("no new expid")
+          vm = val.match(line)
+          if vm:
+              if parse_val(vm.group('sign'))=='readout':
+                print('readouts are currently not handled!')
+                #vertex = quote(vm.group('genid'))
+                #accu.add(Term('done',[expid,"gen("+vertex+")"]))
+              else:
+                vertex = quote(vm.group('genid'))
+                accu.add(Term('done',[expid,"gen("+vertex+")", parse_val(vm.group('sign'))]))
+          else:
+              print('Syntax error line:', line_number, ':', line)
+          line = file.readline()
+          line_number+=1
+    return accu
 

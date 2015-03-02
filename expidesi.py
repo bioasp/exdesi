@@ -51,13 +51,19 @@ if __name__ == '__main__':
 
 
     print('\nReading experimental variables',exp_string, '...',end='')
-    mu = bioquali.readProfile(exp_string)
+    mu = bioquali.readExpVar(exp_string)
     print('done.')
     #print(mu)
 
+    print('\nReading excluded experiments',args.exclude, '...',end='')
+    exclude = bioquali.readExcludedExp(args.exclude)
+    print('done.')
+    #print(exclude)
+    
+    MU = TermSet(mu.union(exclude))
 
     print('\nCompute best single experiment ...',end='')
-    experiments = query.get_best_single_experiments(NETS,mu)
+    experiments = query.get_best_single_experiments(NETS,MU)
     print('done.')
 
     if experiments == [] :
@@ -73,7 +79,7 @@ if __name__ == '__main__':
     
       print('\nCompute best experiment sets ...',end='')
       max_number_experiments = 10
-      experiments = query.get_experiments(NETS,mu,max_number_experiments)
+      experiments = query.get_experiments(NETS,MU,max_number_experiments)
       print('done.')
 
       count=0
