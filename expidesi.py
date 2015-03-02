@@ -25,12 +25,17 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument("networkfiles",
-                        help="directory of influence graph in SIF format")
+                        help="directory of influence graphs in SIF format")
     parser.add_argument("experivarfile",
                         help="experimental variables")
+                        
+    parser.add_argument("-x", "--exclude",
+                    help="exclude experiments described in file EXCLUDE")
 
     args = parser.parse_args()
-
+    
+    print(args.exclude)
+    
     net_dir = args.networkfiles
     exp_string = args.experivarfile
 
