@@ -15,16 +15,10 @@ Usage
 
 Typical usage is::
 
-	$ expidesi.py network.sif observation.obs  
+	$ expidesi.py networkfiles expvar.txt  
 
 For more options you can ask for help as follows::
 
 	$ expidesi.py -h 		
 
 
-Samples
--------
-
-Sample files available here:: samples.tar.gz_
-
-.. _samples.tar.gz: http://www.cs.uni-potsdam.de/~sthiele/bioasp/downloads/samples/samples.tar.gz
