@@ -69,6 +69,7 @@ def readExpVar(filename):
     line = file.readline()
     accu = TermSet()
     while line:
+      if line.strip() :
         vm = val.match(line)
         if vm:
             if parse_val(vm.group('sign'))=='readout':
@@ -81,6 +82,9 @@ def readExpVar(filename):
             print('Syntax error line:', line_number, ':', line)
         line = file.readline()
         line_number+=1
+      else:    
+        line = file.readline()
+        line_number+=1        
     return accu
 
 #read excluded experiments
@@ -99,26 +103,30 @@ def readExcludedExp(filename):
     expident = re.compile(expident_re)
     expid = '1'
     while line:
-        vm = expident.match(line)
-        if vm : 
-           expid = vm.group('expid')
-           #print('new expid:', expid)
-           line = file.readline()
-           line_number+=1
-        else:
-          #print("no new expid")
-          vm = val.match(line)
-          if vm:
-              if parse_val(vm.group('sign'))=='readout':
-                print('readouts are currently not handled!')
-                #vertex = quote(vm.group('genid'))
-                #accu.add(Term('done',[expid,"gen("+vertex+")"]))
-              else:
-                vertex = quote(vm.group('genid'))
-                accu.add(Term('done',[expid,"gen("+vertex+")", parse_val(vm.group('sign'))]))
+       if line.strip() :
+          vm = expident.match(line)
+          if vm : 
+            expid = vm.group('expid')
+            #print('new expid:', expid)
+            line = file.readline()
+            line_number+=1
           else:
-              print('Syntax error line:', line_number, ':', line)
-          line = file.readline()
-          line_number+=1
+            #print("no new expid")
+            vm = val.match(line)
+            if vm:
+                if parse_val(vm.group('sign'))=='readout':
+                  print('Warning line:',line_number,': Readouts are currently not handled, in experiment exclusion!')
+                  #vertex = quote(vm.group('genid'))
+                  #accu.add(Term('done',[expid,"gen("+vertex+")"]))
+                else:
+                  vertex = quote(vm.group('genid'))
+                  accu.add(Term('done',[expid,"gen("+vertex+")", parse_val(vm.group('sign'))]))
+            else:
+                print('Syntax error line:', line_number, ':', line)
+            line = file.readline()
+            line_number+=1
+       else:    
+         line = file.readline()
+         line_number+=1
     return accu
 

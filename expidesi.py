@@ -55,12 +55,15 @@ if __name__ == '__main__':
     print('done.')
     #print(mu)
 
-    print('\nReading excluded experiments',args.exclude, '...',end='')
-    exclude = bioquali.readExcludedExp(args.exclude)
-    print('done.')
-    #print(exclude)
-    
-    MU = TermSet(mu.union(exclude))
+    if (args.exclude) :
+      print('\nReading excluded experiments',args.exclude, '...',end='')
+      exclude = bioquali.readExcludedExp(args.exclude)
+      print('done.')
+      #print(exclude)
+      
+      MU = TermSet(mu.union(exclude))
+    else:
+      MU = mu
 
     print('\nCompute best single experiment ...',end='')
     experiments = query.get_best_single_experiments(NETS,MU)
@@ -77,7 +80,7 @@ if __name__ == '__main__':
         print("best single experiment",count,":")
         utils.print_experiment_table(e)
     
-      print('\nCompute best experiment sets ...',end='')
+      print('\nCompute best experiment sets (max card 10) ...',end='')
       max_number_experiments = 10
       experiments = query.get_experiments(NETS,MU,max_number_experiments)
       print('done.')

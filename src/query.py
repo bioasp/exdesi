@@ -42,12 +42,10 @@ def get_experiments(nets,expvars,num):
     i=0
     while i < num and not best_found :
       i += 1
+      
       num_exp = String2TermSet('pexperiment('+str(i)+')')
       num_expf = num_exp.to_file()
-      #exit()
-      #prg = [netsf,expvarsf,num_expf, find_exp_prg,heu_prg ]
-      #coptions = '--opt-mode=optN --dom-mod=6 --heu=Domain'
-
+      #print("test ", str(i))
       prg = [netsf,expvarsf,num_expf, find_exp_prg ]
       coptions = '--project --opt-mode=optN --opt-strategy=0 --opt-heuristic'
       #coptions = '--opt-mode=optN --opt-strategy=5'
@@ -58,19 +56,21 @@ def get_experiments(nets,expvars,num):
       #print(solutions[0].score[0])
       #print(solutions[0].score[1])
       #print(solutions[0].score[2])    
-      
+      os.unlink(num_expf)      
+      #print("opt=",str(solutions[0].score[0]+solutions[0].score[1]))
       if solutions == []: best_found=True
       else:
-        opt=solutions[0].score[0]
+        opt=(solutions[0].score[0]+solutions[0].score[1])
         if best == opt:
           best_found=True
         else:
+          #print("update best")
           best = opt
           best_solutions=solutions
           
     os.unlink(netsf)
     os.unlink(expvarsf)
-    os.unlink(num_expf)
+
     return best_solutions
     
 def get_best_single_experiments(nets,expvars):
@@ -79,11 +79,6 @@ def get_best_single_experiments(nets,expvars):
     '''
     netsf = nets.to_file()
     expvarsf = expvars.to_file()
-    #exit()
-    best=-1
-    best_solutions=[]
-    best_found=False
-
 
     prg = [netsf,expvarsf, find_best_singexp_prg ]
     coptions = '--project --opt-mode=optN --opt-strategy=0 --opt-heuristic'
@@ -91,6 +86,9 @@ def get_best_single_experiments(nets,expvars):
     solver = GringoClasp(clasp_options=coptions)
     solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)
 
+    #print(solutions)
+    #exit()
+    
     os.unlink(netsf)
     os.unlink(expvarsf)
     return solutions

@@ -1,111 +1,126 @@
+% vertex(N,X)           vertex X in network N
+% obs_elabel(N,X,Y,S).  edge from X to Y with sign S in network N
+% preadout(X).          possible readout in node X
+% pperturb(X,S).        possible perturbed node X, S sign of perturbation
+% done(E,X,S).          already performed experiment E, perturbe node X with sign S
+
+% possible experiments
+exp(1..X) :- pexperiment(X).
 % the networks
 net(N) :- vertex(N,X).
-
 % keep isolated vertices
 vertex(N,X) :- obs_elabel(N,Y,X,S).
 vertex(N,Y) :- obs_elabel(N,Y,X,S).
 vertex(X) :- vertex(N,X).
 vertex(N,X) :- net(N), vertex(X).
 
-%pertubations
-per(1).
-per(-1).
-per(0).
-
-% define already done experiments
-% done(1,gen("B"),-1).
-% done(2,gen("R"),1).
-% done(3,gen("E"),-1).
-% done(4,gen("B"),-1).
-% done(4,gen("E"),-1).
-
-% filter already done experiments
-donexp(DE) :- done(DE,G,S).
-
-ndone(DE,G,S) :- pperturb(G,S), donexp(DE), not done(DE,G,S).
-ndone(DE,G,S) :- done(DE2,G2,S2), donexp(DE), vertex(G), per(S), not done(DE,G,S).
-
-one_undone(DE) :- done(DE,X,S), npert(X,S).
-one_new(DE) :- ndone(DE,X,S), pert(X,S).
-
-:- not one_new(DE), not one_undone(DE), donexp(DE).
 
 
-% check if a node has influence on a readout in a network
-hasinfl(X) :- preadout(Z), obs_elabel(N,X,Z,S).
-hasinfl(X) :- hasinfl(Z), obs_elabel(N,X,Z,S).
+%% filter already done experiments
+
+donexp(DE) :- done(DE,X,S).
+
+% a experiment DE is not redone if atleat one pertubations X,S done in DE is not done (not pert(X,S))
+is_not_redone(DE) :- done(DE,X,S), not pert(X,S).
+% a experiment DE is not redone if atleat one pertubations X,S not done in DE is done ( pert(X,S))
+is_not_redone(DE) :- donexp(DE), not done(DE,X,S), pert(X,S).
+
+is_redone :- not is_not_redone(DE), donexp(DE).
+:- is_redone.
 
 
+%% filter stupid zero pertubations
+% node X has a predecessor
 has_pred(X)  :- vertex(N,X), obs_elabel(N,Y,X,S), Y!=X.
-must_zero(X) :- vertex(N,X), not has_pred(X).
-one_predessor_not_zero(X) :- obs_elabel(N,Y,X,S), not must_zero(Y).
-must_zero(X) :- vertex(N,X), not one_predessor_not_zero(X).
+% node X would be 0 because it has no predecessors
+zero_anyway(X) :- vertex(N,X), not has_pred(X), not pert(X,1), not pert(X,-1).
+% node X has one predecessor which would not be 0 anyways
+one_predessor_not_zero(X) :- obs_elabel(N,Y,X,S), not zero_anyway(Y).
+% node X would be 0 because all its predecessors would be  0
+zero_anyway(X) :- vertex(N,X), not one_predessor_not_zero(X), not pert(X,1), not pert(X,-1).
+
 % forbid 0-pertubations in nodes which must be zero anyway
-forbidden_pert(G,0) :- pperturb(G,0), must_zero(G).
+:- pert(X,0), zero_anyway(X).
 
-% choose experimental pertubations, filter those which have no influence on a readout
-%{pert(G,S)} :- hasinfl(G), pperturb(G,S).
-{pert(G,S)} :- hasinfl(G), pperturb(G,S), not forbidden_pert(G,S). 
-pert(G) :- pert(G,S).
 
-% pert(gen("R"),1).
-% pert(gen("E"),-1).
+%% choose pertubations, filter those which dont lead to a possible readout
+
+% node X has a path to a preadout in network N
+to_preadout(X,N) :- preadout(Y), obs_elabel(N,X,Y,S).
+to_preadout(X,N) :- to_preadout(Y,N), obs_elabel(N,X,Y,S).
+% node X has a path to a preadout in some network
+to_preadout(X):- to_preadout(X,N).
+
+{pert(X,S)} :- to_preadout(X), pperturb(X,S). 
+pert(X) :- pert(X,S).
 
 % no two pertubations in the same node
-:- pert(G,S1), pert(G,S2),S1!=S2.
-
-% is possibly perturned
-is_pperturbed(X) :- pperturb(X,S).
-is_pperturbed(Y) :- is_pperturbed(X), obs_elabel(N,X,Y,S).
-
-% check if a node has at least one pertubator in a network 
-is_pertubed(X) :- pert(X).
-is_pertubed(Y) :- is_pperturbed(Y), is_pertubed(X), obs_elabel(N,X,Y,S).
+:- pert(G,S1), pert(G,S2), S1!=S2.
 
 
-% choose experimental readouts (take all)
-readout(G) :- is_pertubed(G), preadout(G). 
-%{readout(G)} :- preadout(G). 
+%% choose readouts, filter those which are not reachable by a perturbed node
 
-npert(G,S) :- pperturb(G,S), not pert(G,S).
+% X is possible influenced by a pperturb in network N
+pinfluenced(X,N) :- pperturb(X,S), net(N).
+pinfluenced(X,N) :- pinfluenced(Y,N), obs_elabel(N,Y,X,S).
+% X is possible influenced by a pperturb in some network
+pinfluenced(X) :- pinfluenced(X,N).
+
+% X is influenced by a pert in network N
+influenced(X,N) :- pert(X), net(N).
+influenced(X,N) :- influenced(Y,N), obs_elabel(N,Y,X,S).
+% X is influenced by a pert in some network
+influenced(X) :- influenced(X,N).
+
+%{readout(X)} :- preadout(X).
+readout(X) :- influenced(X), preadout(X).
 
 
-% compute labeling
 
-wtoreadout(X) :- preadout(X), is_pperturbed(X).
+%% compute labeling
+
+
+% X is on the way to a readout if it is a potential readout that has a possible pertubator
+wtoreadout(X) :- preadout(X), pinfluenced(X).
+% X is on the way to a readout if it is a potential readout that is also possibly pertubed
 wtoreadout(X) :- obs_elabel(N,X,Y,S), wtoreadout(Y).
 
-frompert(X) :- pperturb(X,S), hasinfl(X).
+% wenn es in keinem netzwerk einen weg zum readout gibt dann ist es keine lösung
+:- pert(X), not wtoreadout(X).
+
+frompert(X) :- pperturb(X,S), to_preadout(X).
 frompert(X) :- obs_elabel(N,Y,X,S), frompert(Y).
 
 both(X) :- wtoreadout(X), frompert(X).
 
-count_edges(N,Z) :-  Z = #count{obs_elabel(N,X,Y,S)}, net(N).
 
-path(N,X,Y, l(X,Y),1) :- pert(X),      obs_elabel(N,X,Y, S), npert(Y).
-path(N,X,Y, l(PXZ,Y),C+1) :- path(N,X,Z,PXZ,C), obs_elabel(N,Z,Y, S), npert(Y), count_edges(N,C2), C+1<C2.
+% in network n exist a pos_path from X to Y
+pos_path(N,X,Y,1) :-   pert(X),  obs_elabel(N,X,Y, 1), not pert(Y), both(Y).
+pos_path(N,X,Y,D+1) :- pos_path(N,X,Z,D), obs_elabel(N,Z,Y, 1), not pert(Y), both(Y), 
+                       not shorter_path(N,X,Y,D+1), D<20.                       
+                       
+pos_path(N,X,Y,D+1) :- neg_path(N,X,Z,D), obs_elabel(N,Z,Y,-1), not pert(Y), both(Y), 
+                       not shorter_path(N,X,Y,D+1), D<20.
+                       
+% in network n exist a neg_path from X to Y
+neg_path(N,X,Y,1) :-   pert(X),      obs_elabel(N,X,Y,-1), not pert(Y), both(Y).
+neg_path(N,X,Y,D+1) :- neg_path(N,X,Z,D), obs_elabel(N,Z,Y, 1), not pert(Y), both(Y),
+                       not shorter_path(N,X,Y,D+1), D<20.
+neg_path(N,X,Y,D+1) :- pos_path(N,X,Z,D), obs_elabel(N,Z,Y,-1), not pert(Y), both(Y), 
+                       not shorter_path(N,X,Y,D+1), D<20.
+                       
+shorter_path(N,X,Y,D+2) :- pos_path(N,X,Z,D), obs_elabel(N,Z,Y,_), not pert(Y), both(Y).
+shorter_path(N,X,Y,D+2) :- neg_path(N,X,Z,D), obs_elabel(N,Z,Y,_), not pert(Y), both(Y).
+shorter_path(N,X,Y,D+1) :- shorter_path(N,X,Y,D), D<20.
 
-path(PATH) :- path(N,X,Y, PATH,C).
-npert(X) :-  vertex(X), not pert(X).
 
-pos_path(N,X,Y, l(X,Y) ) :- pert(X),      obs_elabel(N,X,Y, 1), npert(Y).
-neg_path(N,X,Y, l(X,Y) ) :- pert(X),      obs_elabel(N,X,Y,-1), npert(Y).
+% Y gets a positive influence
+getspos(N,Y) :- pert(X, 1), readout(Y), pos_path(N,X,Y,_).
+getspos(N,Y) :- pert(X,-1), readout(Y), neg_path(N,X,Y,_).
 
-pos_path(N,X,Y, l(PXZ,Y)) :- pos_path(N,X,Z,PXZ), obs_elabel(N,Z,Y, 1), npert(Y), notin(Y,PXZ).
-pos_path(N,X,Y, l(PXZ,Y)) :- neg_path(N,X,Z,PXZ), obs_elabel(N,Z,Y,-1), npert(Y), notin(Y,PXZ).
-
-neg_path(N,X,Y, l(PXZ,Y)) :- neg_path(N,X,Z,PXZ), obs_elabel(N,Z,Y, 1), npert(Y), notin(Y,PXZ).
-neg_path(N,X,Y, l(PXZ,Y)) :- pos_path(N,X,Z,PXZ), obs_elabel(N,Z,Y,-1), npert(Y), notin(Y,PXZ).
-
-notin(X, Y) :- X!=Y, both(X), both(Y),pperturb(Y,S).
-notin(X, l(Y,Z)) :- X!=Z, notin(X,Y), notin(Z,Y),path(l(Y,Z)).
-
-
-getspos(N,Y) :- pert(X, 1), readout(Y), pos_path(N,X,Y,PATH).
-getspos(N,Y) :- pert(X,-1), readout(Y), neg_path(N,X,Y,PATH).
-
-getsneg(N,Y) :- pert(X, 1), readout(Y), neg_path(N,X,Y,PATH).
-getsneg(N,Y) :- pert(X,-1), readout(Y), pos_path(N,X,Y,PATH).
+% Y gets a negative influence
+getsneg(N,Y) :- pert(X, 1), readout(Y), neg_path(N,X,Y,_).
+getsneg(N,Y) :- pert(X,-1), readout(Y), pos_path(N,X,Y,_).
 
 
 vlabel(N,G,am) :- readout(G), getspos(N,G), getsneg(N,G).
@@ -133,30 +148,31 @@ uneq2(-1,am).
 
 
 % check whether labelings are different
-difflabel(1,N1,G,S1) :- vlabel(N1,G,S1), vlabel(N2,G,S2), N1!=N2, uneq(S1,S2).
-diff1(N1,N2)         :- vlabel(N1,G,S1), vlabel(N2,G,S2), N1<N2, uneq(S1,S2).
-countdiff1(Z) :- Z = #count{diff1(N1,N2)}.
+difflabel(1,N1,X,S1) :- vlabel(N1,X,S1), vlabel(N2,X,S2), N1!=N2, uneq(S1,S2), readout(X).
+diff1(N1,N2)         :- vlabel(N1,X,S1), vlabel(N2,X,S2), N1<N2,  uneq(S1,S2), readout(X).
+% countdiff1(Z)        :- Z = #count{diff1(N1,N2)}.
 
 % check whether labelings MAYBE different
-difflabel(1,N1,G,S1) :- vlabel(N1,G,S1), vlabel(N2,G,S2), N1!=N2, uneq2(S1,S2).
-diff2(N1,N2)          :- vlabel(N1,G,S1), vlabel(N2,G,S2), N1<N2, uneq2(S1,S2).
-countdiff2(Z) :- Z = #count{diff2(N1,N2)}.
+difflabel(1,N1,X,S1) :- vlabel(N1,X,S1), vlabel(N2,X,S2), N1!=N2, uneq2(S1,S2), readout(X).
+diff2(N1,N2)         :- vlabel(N1,X,S1), vlabel(N2,X,S2), N1<N2,  uneq2(S1,S2), readout(X).
+% countdiff2(Z)        :- Z = #count{diff2(N1,N2)}.
 
 diff :- diff1(N1,N2).
 diff :- diff2(N1,N2).
 % every experiment must distinguish atleast 2 network classes
 :- not diff.
 
-same(N1,N2) :- net(N1), net(N2), N1<N2, not diff1(N1,N2),not diff2(N1,N2).
 
-countpert(Z) :- Z = #count{ pert(G)}.
-
+% count eq classes
+same(N1,N2)         :- net(N1), net(N2), N1<N2, not diff1(N1,N2), not diff2(N1,N2).
 has_smaller_same(Y) :- same(X,Y).
-notunique(X) :- same(X,Y).
-notunique(Y) :- same(X,Y).
-eqclass(X) :- same(X,Y), not has_smaller_same(X).
-eqclass(X) :- net(X) , not notunique(X).
-counteqclasses(Z) :- Z = #count{eqclass(X)}.
+
+notunique(X)        :- same(X,Y).
+notunique(Y)        :- same(X,Y).
+
+eqclass(X)          :- same(X,Y), not has_smaller_same(X).
+eqclass(X)          :- net(X) , not notunique(X).
+counteqclasses(Z)   :- Z = #count{eqclass(X)}.
 
 
 % maximize differences
@@ -169,9 +185,6 @@ counteqclasses(Z) :- Z = #count{eqclass(X)}.
 
 pert(1,X,Y) :- pert(X,Y).
 #show pert/3.
-
 #show counteqclasses/1.
-#show countdiff1/1.
-#show countdiff2/1.
 #show difflabel/4.
 
