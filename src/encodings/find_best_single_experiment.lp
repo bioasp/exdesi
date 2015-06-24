@@ -93,25 +93,27 @@ frompert(X) :- obs_elabel(N,Y,X,S), frompert(Y).
 
 both(X) :- wtoreadout(X), frompert(X).
 
+% use number of vertices as upper bound for path length
+countvertices(C)    :- C = #count{vertex(X)}.
 
 % in network n exist a pos_path from X to Y
-pos_path(N,X,Y,1) :-   pert(X),  obs_elabel(N,X,Y, 1), not pert(Y), both(Y).
+pos_path(N,X,Y,1)   :- pert(X),  obs_elabel(N,X,Y, 1), not pert(Y), both(Y).
 pos_path(N,X,Y,D+1) :- pos_path(N,X,Z,D), obs_elabel(N,Z,Y, 1), not pert(Y), both(Y), 
-                       not shorter_path(N,X,Y,D+1), D<20.                       
+                       not shorter_path(N,X,Y,D+1), D<C, countvertices(C).                       
                        
 pos_path(N,X,Y,D+1) :- neg_path(N,X,Z,D), obs_elabel(N,Z,Y,-1), not pert(Y), both(Y), 
-                       not shorter_path(N,X,Y,D+1), D<20.
+                       not shorter_path(N,X,Y,D+1), D<C, countvertices(C).
                        
 % in network n exist a neg_path from X to Y
 neg_path(N,X,Y,1) :-   pert(X),      obs_elabel(N,X,Y,-1), not pert(Y), both(Y).
 neg_path(N,X,Y,D+1) :- neg_path(N,X,Z,D), obs_elabel(N,Z,Y, 1), not pert(Y), both(Y),
-                       not shorter_path(N,X,Y,D+1), D<20.
+                       not shorter_path(N,X,Y,D+1), D<C, countvertices(C).
 neg_path(N,X,Y,D+1) :- pos_path(N,X,Z,D), obs_elabel(N,Z,Y,-1), not pert(Y), both(Y), 
-                       not shorter_path(N,X,Y,D+1), D<20.
+                       not shorter_path(N,X,Y,D+1), D<C, countvertices(C).
                        
 shorter_path(N,X,Y,D+2) :- pos_path(N,X,Z,D), obs_elabel(N,Z,Y,_), not pert(Y), both(Y).
 shorter_path(N,X,Y,D+2) :- neg_path(N,X,Z,D), obs_elabel(N,Z,Y,_), not pert(Y), both(Y).
-shorter_path(N,X,Y,D+1) :- shorter_path(N,X,Y,D), D<20.
+shorter_path(N,X,Y,D+1) :- shorter_path(N,X,Y,D), D<C, countvertices(C).
 
 
 % Y gets a positive influence
