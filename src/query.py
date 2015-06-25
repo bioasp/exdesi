@@ -79,7 +79,7 @@ def get_best_single_experiments(nets,expvars):
     '''
     netsf = nets.to_file()
     expvarsf = expvars.to_file()
-
+    #exit()
     prg = [netsf,expvarsf, find_best_singexp_prg ]
     coptions = '--project --opt-mode=optN --opt-strategy=0 --opt-heuristic'
       

@@ -107,33 +107,70 @@ both(X,N) :- wtoreadout(X,N).
 countvertices(C)    :- C = #count{vertex(X)}.
 
 % in network n exist a pos_path from X to Y
-pos_path(E,N,X,Y,1) :-    pert(E,X), obs_elabel(N,X,Y, 1), not pert(E,Y), both(Y,N).
-pos_path(E,N,X,Y, D+1) :- pos_path(E,N,X,Z,D), obs_elabel(N,Z,Y, 1), not pert(E,Y), both(Y,N),
-                          not shorter_path(E,N,X,Y,D+1), D<C, countvertices(C).     
+pos_path(E,N,gen(X),gen(Y),1, @strconc(X,Y)) :- pert(E,gen(X)), obs_elabel(N,gen(X),gen(Y), 1), not pert(E,gen(Y)), both(gen(Y),N).
+pos_path(E,N,X,gen(Y), D+1,@strconc(P,Y))    :- pos_path(E,N,X,Z,D,P), obs_elabel(N,Z,gen(Y), 1), not pert(E,gen(Y)), both(gen(Y),N),
+                                                0==@member(Y,P), D<C, countvertices(C).     
                           
-pos_path(E,N,X,Y, D+1) :- neg_path(E,N,X,Z,D), obs_elabel(N,Z,Y,-1), not pert(E,Y), both(Y,N),
-                          not shorter_path(E,N,X,Y,D+1), D<C, countvertices(C).
+pos_path(E,N,X,gen(Y), D+1,@strconc(P,Y))    :- neg_path(E,N,X,Z,D,P), obs_elabel(N,Z,gen(Y),-1), not pert(E,gen(Y)), both(gen(Y),N),
+                                                0==@member(Y,P), D<C, countvertices(C).
                        
 % in network n exist a neg_path from X to Y
-neg_path(E,N,X,Y,1) :-    pert(E,X), obs_elabel(N,X,Y,-1), not pert(E,Y), both(Y,N).
-neg_path(E,N,X,Y, D+1) :- neg_path(E,N,X,Z,D), obs_elabel(N,Z,Y, 1), not pert(E,Y), both(Y,N),
-                          not shorter_path(E,N,X,Y,D+1), D<C, countvertices(C).
+neg_path(E,N,gen(X),gen(Y),1, @strconc(X,Y)) :- pert(E,gen(X)), obs_elabel(N,gen(X),gen(Y),-1), not pert(E,gen(Y)), both(gen(Y),N).
+neg_path(E,N,X,gen(Y), D+1,@strconc(P,Y))    :- neg_path(E,N,X,Z,D,P), obs_elabel(N,Z,gen(Y), 1), not pert(E,gen(Y)), both(gen(Y),N),
+                                                0==@member(Y,P), D<C, countvertices(C).
                           
-neg_path(E,N,X,Y, D+1) :- pos_path(E,N,X,Z,D), obs_elabel(N,Z,Y,-1), not pert(E,Y), both(Y,N),
-                          not shorter_path(E,N,X,Y,D+1), D<C, countvertices(C).
+neg_path(E,N,X,gen(Y), D+1,@strconc(P,Y))    :- pos_path(E,N,X,Z,D,P), obs_elabel(N,Z,gen(Y),-1), not pert(E,gen(Y)), both(gen(Y),N),
+                                                0==@member(Y,P), D<C, countvertices(C).
 
-shorter_path(E,N,X,Y,D+2) :- pos_path(E,N,X,Z,D), obs_elabel(N,Z,Y,_), not pert(E,Y), both(Y,N).
-shorter_path(E,N,X,Y,D+2) :- neg_path(E,N,X,Z,D), obs_elabel(N,Z,Y,_), not pert(E,Y), both(Y,N).
-shorter_path(E,N,X,Y,D+1) :- shorter_path(E,N,X,Y,D), D<C, countvertices(C).
+#begin_lua
+
+function string:split( inSplitPattern, outResults )
+  if not outResults then
+    outResults = { }
+  end
+  local theStart = 1
+  local theSplitStart, theSplitEnd = string.find( self, inSplitPattern, theStart )
+  while theSplitStart do
+    table.insert( outResults, string.sub( self, theStart, theSplitStart-1 ) )
+    theStart = theSplitEnd + 1
+    theSplitStart, theSplitEnd = string.find( self, inSplitPattern, theStart )
+  end
+  table.insert( outResults, string.sub( self, theStart ) )
+  return outResults
+end
+
+
+function strconc(x,y)
+  return tostring(x)..":"..tostring(y)
+end
+
+
+function Set (list)
+  local set = {}
+  for _, l in ipairs(list) do set[l] = true end
+  return set
+end
+
+function member(x,l)
+  local myString = tostring(l)
+  local myset = Set(myString:split(":"))
+  if myset[x] then 
+    return 1
+  else 
+    return 0
+  end
+end
+
+#end_lua.
 
 
 % Y gets a positive influence
-getspos(E,N,Y) :- pert(E,X, 1), readout(E,Y), pos_path(E,N,X,Y,_).
-getspos(E,N,Y) :- pert(E,X,-1), readout(E,Y), neg_path(E,N,X,Y,_).
+getspos(E,N,Y) :- pert(E,X, 1), readout(E,Y), pos_path(E,N,X,Y,_,P).
+getspos(E,N,Y) :- pert(E,X,-1), readout(E,Y), neg_path(E,N,X,Y,_,P).
 
 % Y gets a negative influence
-getsneg(E,N,Y) :- pert(E,X, 1), readout(E,Y), neg_path(E,N,X,Y,_).
-getsneg(E,N,Y) :- pert(E,X,-1), readout(E,Y), pos_path(E,N,X,Y,_).
+getsneg(E,N,Y) :- pert(E,X, 1), readout(E,Y), neg_path(E,N,X,Y,_,P).
+getsneg(E,N,Y) :- pert(E,X,-1), readout(E,Y), pos_path(E,N,X,Y,_,P).
 
 
 vlabel(E,N,G,am) :- readout(E,G), getspos(E,N,G), getsneg(E,N,G).
