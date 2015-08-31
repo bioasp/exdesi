@@ -82,7 +82,7 @@ if __name__ == '__main__':
     
       print('\nCompute best experiment sets (max card 10) ...',end='')
       max_number_experiments = 10
-      experiments = query.get_experiments(NETS,MU,max_number_experiments)
+      experiments = query.get_best_experiment_sets(NETS,MU,max_number_experiments)
       print('done.')
 
       count=0

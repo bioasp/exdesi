@@ -71,45 +71,13 @@ influenced(X,N) :- influenced(Y,N), obs_elabel(N,Y,X,S).
 influenced(X) :- influenced(X,N).
 
 %{readout(X)} :- preadout(X).
+% we fix the readouts
 readout(X) :- influenced(X), preadout(X).
-
 
 
 %% compute labeling
 
-
-% X is on the way to a readout if it is a potential readout that has a possible pertubator
-wtoreadout(X) :- preadout(X), pinfluenced(X).
-% X is on the way to a readout if it is a potential readout that is also possibly pertubed
-wtoreadout(X) :- obs_elabel(N,X,Y,S), wtoreadout(Y).
-
-% wenn es in keinem netzwerk einen weg zum readout gibt dann ist es keine lösung
-:- pert(X), not wtoreadout(X).
-
-frompert(X) :- pperturb(X,S), to_preadout(X).
-frompert(X) :- obs_elabel(N,Y,X,S), frompert(Y).
-
-both(X) :- wtoreadout(X), frompert(X).
-
-% use number of vertices as upper bound for path length
-countvertices(C)    :- C = #count{vertex(X)}.
-
-% in network n exist a pos_path from X to Y
-pos_path(N,gen(X),gen(Y), 1, @strconc(X,Y)) :- pert(gen(X)),  obs_elabel(N,gen(X),gen(Y), 1), not pert(gen(Y)), both(gen(Y)).
-pos_path(N,X,gen(Y),D+1,@strconc(P,Y))      :- pos_path(N,X,Z,D,P), obs_elabel(N,Z,gen(Y), 1), not pert(gen(Y)), both(gen(Y)), 
-                                            0==@member(Y,P), D<C, countvertices(C).                       
-                       
-pos_path(N,X,gen(Y),D+1,@strconc(P,Y))      :- neg_path(N,X,Z,D,P), obs_elabel(N,Z,gen(Y),-1), not pert(gen(Y)), both(gen(Y)), 
-                                            0==@member(Y,P), D<C, countvertices(C).
-                       
-% in network n exist a neg_path from X to Y
-neg_path(N,gen(X),gen(Y), 1, @strconc(X,Y)) :- pert(gen(X)), obs_elabel(N,gen(X),gen(Y),-1), not pert(gen(Y)), both(gen(Y)).
-neg_path(N,X,gen(Y),D+1, @strconc(P,Y))     :- neg_path(N,X,Z,D,P), obs_elabel(N,Z,gen(Y), 1), not pert(gen(Y)), both(gen(Y)),
-                                            0==@member(Y,P), D<C, countvertices(C).
-                              
-neg_path(N,X,gen(Y),D+1, @strconc(P,Y)) :- pos_path(N,X,Z,D,P), obs_elabel(N,Z,gen(Y),-1), not pert(gen(Y)), both(gen(Y)), 
-                                           0==@member(Y,P), D<C, countvertices(C).
-                       
+both(X) :- to_preadout(X,N),pinfluenced(X,N).
 
 #begin_lua
 
@@ -153,6 +121,36 @@ end
 #end_lua.
 
 
+% use number of vertices as upper bound for path length
+countvertices(C)    :- C = #count{vertex(X)}.
+
+% in network n exist a pos_path from X to Y
+pos_path(N,gen(X),gen(Y), 1, @strconc(X,Y)) :- 
+	pert(gen(X)), obs_elabel(N,gen(X),gen(Y),1), not pert(gen(Y)),
+       	both(gen(Y)).
+pos_path(N,X,gen(Y),D+1,@strconc(P,Y))      :-
+       	pos_path(N,X,Z,D,P), obs_elabel(N,Z,gen(Y), 1), not pert(gen(Y)),
+       	both(gen(Y)), 
+        0==@member(Y,P), D<C, countvertices(C).                       
+                       
+pos_path(N,X,gen(Y),D+1,@strconc(P,Y))      :- 
+	neg_path(N,X,Z,D,P), obs_elabel(N,Z,gen(Y),-1), not pert(gen(Y)), 
+	both(gen(Y)),
+	0==@member(Y,P), D<C, countvertices(C).
+                       
+% in network n exist a neg_path from X to Y
+neg_path(N,gen(X),gen(Y), 1, @strconc(X,Y)) :-
+       	pert(gen(X)), obs_elabel(N,gen(X),gen(Y),-1), not pert(gen(Y)),
+       	both(gen(Y)).
+neg_path(N,X,gen(Y),D+1, @strconc(P,Y))     :- 
+	neg_path(N,X,Z,D,P), obs_elabel(N,Z,gen(Y), 1), not pert(gen(Y)), 
+	both(gen(Y)), 0==@member(Y,P), D<C, countvertices(C).
+                              
+neg_path(N,X,gen(Y),D+1, @strconc(P,Y)) :-
+	pos_path(N,X,Z,D,P), obs_elabel(N,Z,gen(Y),-1), not pert(gen(Y)),
+       	both(gen(Y)),
+	0==@member(Y,P), D<C, countvertices(C).
+                       
 
 % Y gets a positive influence
 getspos(N,Y) :- pert(X, 1), readout(Y), pos_path(N,X,Y,_,P).
