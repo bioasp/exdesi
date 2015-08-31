@@ -25,16 +25,24 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument("networkfiles",
-                        help="directory of influence graphs in SIF format")
+		    help="directory of influence graphs in SIF format")
     parser.add_argument("experivarfile",
-                        help="experimental variables")
+		    help="experimental variables")
                         
     parser.add_argument("-x", "--exclude",
                     help="exclude experiments described in file EXCLUDE")
 
+    parser.add_argument('--use_some_path',
+		    help="compute depmat using some path semantic instead of shortest elementary path, default is OFF",
+		    action="store_true")
+
     args = parser.parse_args()
-    
-    print(args.exclude)
+
+
+    SP   = args.use_some_path
+    if SP : print('Using some path semantic: an influence is received if some path from the perturbation to the readout exists.')
+    else :print('Using shortest elementary path semantic: an influence is received if a shortest elementary path from the perturbation to the readout exists.')
+
     
     net_dir = args.networkfiles
     exp_string = args.experivarfile
@@ -66,7 +74,7 @@ if __name__ == '__main__':
       MU = mu
 
     print('\nCompute best single experiment ...',end='')
-    experiments = query.get_best_single_experiments(NETS,MU)
+    experiments = query.get_best_single_experiments(NETS, MU, SP)
     print('done.')
 
     if experiments == [] :
@@ -82,7 +90,7 @@ if __name__ == '__main__':
     
       print('\nCompute best experiment sets (max card 10) ...',end='')
       max_number_experiments = 10
-      experiments = query.get_best_experiment_sets(NETS,MU,max_number_experiments)
+      experiments = query.get_best_experiment_sets(NETS,MU,max_number_experiments,SP)
       print('done.')
 
       count=0
