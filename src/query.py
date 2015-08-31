@@ -26,9 +26,9 @@ import tempfile
 from pyasp.asp import *
 
 root = __file__.rsplit('/', 1)[0]
-find_exp_prg   		=	root +'/encodings/find_experiment.lp'
-find_best_singexp_prg   =	root +'/encodings/find_best_single_experiment.lp'
-heu_prg   =        root +'/encodings/heuristic.lp'
+find_best_exp_set_prg =	root +'/encodings/find_best_experiment_sets.lp'
+find_best_singexp_prg =	root +'/encodings/find_best_single_experiments.lp'
+heu_prg               = root +'/encodings/heuristic.lp'
 
     
 def get_best_single_experiments(nets,expvars):
