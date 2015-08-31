@@ -26,9 +26,9 @@ import tempfile
 from pyasp.asp import *
 
 root = __file__.rsplit('/', 1)[0]
-find_best_exp_set_prg =	root +'/encodings/find_best_experiment_sets.lp'
-find_best_singexp_prg =	root +'/encodings/find_best_single_experiments.lp'
-heu_prg               = root +'/encodings/heuristic.lp'
+find_best_exp_sets_prg  = root + '/encodings/find_best_experiment_sets.lp'
+shortest_elem_path_prg = root + '/encodings/shortest_elem_path.lp'
+heu_prg                = root + '/encodings/heuristic.lp'
 
     
 def get_best_single_experiments(nets,expvars):
@@ -38,11 +38,17 @@ def get_best_single_experiments(nets,expvars):
     netsf = nets.to_file()
     expvarsf = expvars.to_file()
     
-    prg = [netsf,expvarsf, find_best_singexp_prg ]
+    i = 1 #single experiment
+      
+    num_exp = String2TermSet('pexperiment('+str(i)+')')
+    num_expf = num_exp.to_file()
+    prg = [netsf,expvarsf,num_expf, find_best_exp_sets_prg , shortest_elem_path_prg ]
     coptions = '--project --opt-mode=optN --opt-strategy=0 --opt-heuristic'
       
     solver = GringoClasp(clasp_options=coptions)
     solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)
+
+    os.unlink(num_expf)      
 
     os.unlink(netsf)
     os.unlink(expvarsf)
@@ -65,7 +71,7 @@ def get_best_experiment_sets(nets,expvars,num):
       
       num_exp = String2TermSet('pexperiment('+str(i)+')')
       num_expf = num_exp.to_file()
-      prg = [netsf,expvarsf,num_expf, find_exp_prg ]
+      prg = [netsf,expvarsf,num_expf, find_best_exp_sets_prg , shortest_elem_path_prg ]
       coptions = '--project --opt-mode=optN --opt-strategy=0 --opt-heuristic'
       
       solver = GringoClasp(clasp_options=coptions)
