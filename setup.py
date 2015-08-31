@@ -33,7 +33,7 @@ class install(_install):
                          
 setup(cmdclass={'install': install},
       name='expidesi',
-      version='0.1',
+      version='0.2',
       url='http://bioasp.github.io/expidesi/',
       license='GPLv3+',
       description='Design experiments to differentiate interaction graph models.',

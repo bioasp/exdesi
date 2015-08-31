@@ -46,7 +46,7 @@ zero_anyway(E,X) :- vertex(N,X), not one_predessor_not_zero(E,X), not pert(E,X,1
 %% choose pertubations, filter those which dont lead to a possible readout
 
 % node X has a path to a preadout in network N
-to_preadout(X,N) :- preadout(Y), obs_elabel(N,X,Y,S).
+to_preadout(X,N) :- preadout(X), net(N).
 to_preadout(X,N) :- to_preadout(Y,N), obs_elabel(N,X,Y,S).
 % node X has a path to a preadout in some network
 to_preadout(X):- to_preadout(X,N).
@@ -87,91 +87,11 @@ biggestdiffpert(G,S,E1,E2) :- diffpert(G,S,E1,E2) , not hasbiggerdiffpert(G,S,E1
 :- exp(E1),exp(E2), E1<E2, biggestdiffpert(G,S,E1,E2), pert(E1,G,S), not pert(E2,G,S).
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% compute getspos, getsneg in according module
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% compute labeling
-
-
-% X is on the way to a readout if it is a potential readout that has a possible pertubator
-wtoreadout(X,N) :- preadout(X), pinfluenced(X), net(N).
-% X is on the way to a readout if it is a potential readout that is also possibly pertubed
-wtoreadout(X,N) :- obs_elabel(N,X,Y,S), wtoreadout(Y,N), pinfluenced(X).
-wtoreadout(X) :- wtoreadout(X,N).
-
-% wenn es in keinem netzwerk einen weg zum readout gibt dann ist es keine lösung
-:- pert(X), not wtoreadout(X).
-
-% both sollte wtoreadout sein
-both(X,N) :- wtoreadout(X,N).
-
-% use number of vertices as upper bound for path length
-countvertices(C)    :- C = #count{vertex(X)}.
-
-% in network n exist a pos_path from X to Y
-pos_path(E,N,gen(X),gen(Y),1, @strconc(X,Y)) :- pert(E,gen(X)), obs_elabel(N,gen(X),gen(Y), 1), not pert(E,gen(Y)), both(gen(Y),N).
-pos_path(E,N,X,gen(Y), D+1,@strconc(P,Y))    :- pos_path(E,N,X,Z,D,P), obs_elabel(N,Z,gen(Y), 1), not pert(E,gen(Y)), both(gen(Y),N),
-                                                0==@member(Y,P), D<C, countvertices(C).     
-                          
-pos_path(E,N,X,gen(Y), D+1,@strconc(P,Y))    :- neg_path(E,N,X,Z,D,P), obs_elabel(N,Z,gen(Y),-1), not pert(E,gen(Y)), both(gen(Y),N),
-                                                0==@member(Y,P), D<C, countvertices(C).
-                       
-% in network n exist a neg_path from X to Y
-neg_path(E,N,gen(X),gen(Y),1, @strconc(X,Y)) :- pert(E,gen(X)), obs_elabel(N,gen(X),gen(Y),-1), not pert(E,gen(Y)), both(gen(Y),N).
-neg_path(E,N,X,gen(Y), D+1,@strconc(P,Y))    :- neg_path(E,N,X,Z,D,P), obs_elabel(N,Z,gen(Y), 1), not pert(E,gen(Y)), both(gen(Y),N),
-                                                0==@member(Y,P), D<C, countvertices(C).
-                          
-neg_path(E,N,X,gen(Y), D+1,@strconc(P,Y))    :- pos_path(E,N,X,Z,D,P), obs_elabel(N,Z,gen(Y),-1), not pert(E,gen(Y)), both(gen(Y),N),
-                                                0==@member(Y,P), D<C, countvertices(C).
-
-#begin_lua
-
-function string:split( inSplitPattern, outResults )
-  if not outResults then
-    outResults = { }
-  end
-  local theStart = 1
-  local theSplitStart, theSplitEnd = string.find( self, inSplitPattern, theStart )
-  while theSplitStart do
-    table.insert( outResults, string.sub( self, theStart, theSplitStart-1 ) )
-    theStart = theSplitEnd + 1
-    theSplitStart, theSplitEnd = string.find( self, inSplitPattern, theStart )
-  end
-  table.insert( outResults, string.sub( self, theStart ) )
-  return outResults
-end
-
-
-function strconc(x,y)
-  return tostring(x)..":"..tostring(y)
-end
-
-
-function Set (list)
-  local set = {}
-  for _, l in ipairs(list) do set[l] = true end
-  return set
-end
-
-function member(x,l)
-  local myString = tostring(l)
-  local myset = Set(myString:split(":"))
-  if myset[x] then 
-    return 1
-  else 
-    return 0
-  end
-end
-
-#end_lua.
-
-
-% Y gets a positive influence
-getspos(E,N,Y) :- pert(E,X, 1), readout(E,Y), pos_path(E,N,X,Y,_,P).
-getspos(E,N,Y) :- pert(E,X,-1), readout(E,Y), neg_path(E,N,X,Y,_,P).
-
-% Y gets a negative influence
-getsneg(E,N,Y) :- pert(E,X, 1), readout(E,Y), neg_path(E,N,X,Y,_,P).
-getsneg(E,N,Y) :- pert(E,X,-1), readout(E,Y), pos_path(E,N,X,Y,_,P).
-
 
 vlabel(E,N,G,am) :- readout(E,G), getspos(E,N,G), getsneg(E,N,G).
 vlabel(E,N,G,1)  :- readout(E,G), getspos(E,N,G), not getsneg(E,N,G).
