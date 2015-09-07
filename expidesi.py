@@ -55,7 +55,7 @@ if __name__ == '__main__':
   NETS       = TermSet()
   print('\nReading',len(flist),'network from',net_dir,'...',end='\n')
   for f in flist :
-    net_stringi = os.path.join(net_dir,f)
+    net_string = os.path.join(net_dir,f)
     print ('   reading',net_string,'... ',end='')
     net  = bioquali.readSIFGraph(net_string)
     NETS = TermSet(NETS.union(net))

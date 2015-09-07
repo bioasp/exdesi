@@ -54,7 +54,8 @@ class Parser:
   tokens     = Lexer.tokens
   precedence = ( )
 
-  def __init__(self):
+  def __init__(self, name):
+    self.name   = quote(name)
     self.accu   = TermSet()
     self.args   = []
     self.lexer  = Lexer()
@@ -70,8 +71,8 @@ class Parser:
       print('input', t[1])
     else:
       #print t[1], t[2], t[3]
-      self.accu.add(Term('edge', ["gen(\""+t[1]+"\")","gen(\""+t[3]+"\")"]))
-      self.accu.add(Term('obs_elabel', ["gen(\""+t[1]+"\")","gen(\""+t[3]+"\")",t[2]]))
+      self.accu.add(Term('edge', [self.name, "gen(\""+t[1]+"\")","gen(\""+t[3]+"\")"]))
+      self.accu.add(Term('obs_elabel', [self.name, "gen(\""+t[1]+"\")","gen(\""+t[3]+"\")",t[2]]))
       #print Term('obs_elabel', ["gen(\""+t[1]+"\")","gen(\""+t[3]+"\")",t[2]])
 
 
@@ -80,7 +81,7 @@ class Parser:
     if len(t)<3 : 
       t[0] = t[1]
       #print t[1]
-      self.accu.add(Term('vertex', ["gen(\""+t[1]+"\")"]))
+      self.accu.add(Term('vertex', [self.name, "gen(\""+t[1]+"\")"]))
     else: t[0] = "unknown"
   
   		

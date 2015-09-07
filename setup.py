@@ -17,28 +17,20 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup
-import os
-import sys
-import platform
-import distutils
-import site
-import sysconfig
-
                          
 setup(
-  name         = 'expidesi',
-  version      = '0.2',
-  url          = 'http://bioasp.github.io/expidesi/',
-  license      = 'GPLv3+',
-  description  ='Design experiments to differentiate interaction graph models.',
+  name             = 'expidesi',
+  version          = '0.2',
+  url              = 'http://bioasp.github.io/expidesi/',
+  license          = 'GPLv3+',
+  description      = 'Design experiments to differentiate interaction graph '
+                     'models.',
   long_description = open('README.rst').read(),
-  author       = 'Sven Thiele',
-  author_email = 'sthiele78@gmail.com',
-  packages     = ['__expidesi__'],
-  package_dir  = {'__expidesi__' : 'src'},
-  package_data = {'__expidesi__' : ['encodings/*.lp','encodings/*.gringo']},
-  scripts      = ['expidesi.py'],
-  install_requires = [
-    "pyasp == 1.4.0"
-  ]
+  author           = 'Sven Thiele',
+  author_email     = 'sthiele78@gmail.com',
+  packages         = ['__expidesi__'],
+  package_dir      = {'__expidesi__' : 'src'},
+  package_data     = {'__expidesi__' : ['encodings/*.lp','encodings/*.gringo']},
+  scripts          = ['expidesi.py'],
+  install_requires = ['pyasp == 1.4.0']
 )
