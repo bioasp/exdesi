@@ -23,83 +23,86 @@ from __expidesi__ import query, utils, bioquali
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("networkfiles",
-		    help="directory of influence graphs in SIF format")
-    parser.add_argument("experivarfile",
-		    help="experimental variables")
-                        
-    parser.add_argument("-x", "--exclude",
-                    help="exclude experiments described in file EXCLUDE")
+  parser = argparse.ArgumentParser()
+  parser.add_argument("networkfiles",
+    help="directory of influence graphs in SIF format")
+  parser.add_argument("experivarfile",
+    help="experimental variables")
+                      
+  parser.add_argument("-x", "--exclude",
+    help="exclude experiments described in file EXCLUDE")
 
-    parser.add_argument('--use_some_path',
-		    help="compute depmat using some path semantic instead of shortest elementary path, default is OFF",
-		    action="store_true")
+  parser.add_argument('--use_some_path',
+    help='compute depmat using some path semantic instead of shortest '
+         'elementary path, default is OFF',
+    action="store_true")
 
-    args = parser.parse_args()
-
-
-    SP   = args.use_some_path
-    if SP : print('Using some path semantic: an influence is received if some path from the perturbation to the readout exists.')
-    else :print('Using shortest elementary path semantic: an influence is received if a shortest elementary path from the perturbation to the readout exists.')
-
-    
-    net_dir = args.networkfiles
-    exp_string = args.experivarfile
-
-    flist =  os.listdir(net_dir)
-    print('\nReading',len(flist),'network from',net_dir,'...',end='\n')
-    NETS = TermSet()
-    for f in flist :
-      net_string= os.path.join(net_dir,f)
-      print ('   reading',net_string,'... ',end='')
-      net = bioquali.readSIFGraph(net_string)
-      NETS = TermSet(NETS.union(net))
-      print('done.')
+  args = parser.parse_args()
 
 
-    print('\nReading experimental variables',exp_string, '...',end='')
-    mu = bioquali.readExpVar(exp_string)
-    print('done.')
-    #print(mu)
+  SP   = args.use_some_path
+  if SP: print('Using some path semantic: an influence is received if some '
+               'path from the perturbation to the readout exists.')
+  else : print('Using shortest elementary path semantic: an influence is '
+               'received if a shortest elementary path from the perturbation '
+                'to the readout exists.')
 
-    if (args.exclude) :
-      print('\nReading excluded experiments',args.exclude, '...',end='')
-      exclude = bioquali.readExcludedExp(args.exclude)
-      print('done.')
-      #print(exclude)
-      
-      MU = TermSet(mu.union(exclude))
-    else:
-      MU = mu
+  
+  net_dir    = args.networkfiles
+  exp_string = args.experivarfile
 
-    print('\nCompute best single experiment ...',end='')
-    experiments = query.get_best_single_experiments(NETS, MU, SP)
+  flist      = os.listdir(net_dir)
+  NETS       = TermSet()
+  print('\nReading',len(flist),'network from',net_dir,'...',end='\n')
+  for f in flist :
+    net_stringi = os.path.join(net_dir,f)
+    print ('   reading',net_string,'... ',end='')
+    net  = bioquali.readSIFGraph(net_string)
+    NETS = TermSet(NETS.union(net))
     print('done.')
 
-    if experiments == [] :
-      print("no experiment can distinguish the networks.")
-      print("add more readouts or more perturbations.")
 
-    else:
-      count=0
-      for e in experiments :
-        count = count+1
-        print("best single experiment",count,":")
-        utils.print_experiment_table(e)
+  print('\nReading experimental variables',exp_string, '...',end='')
+  mu = bioquali.readExpVar(exp_string)
+  print('done.')
+  #print(mu)
+
+  if (args.exclude) :
+    print('\nReading excluded experiments',args.exclude, '...',end='')
+    exclude = bioquali.readExcludedExp(args.exclude)
+    print('done.')
+    #print(exclude)
     
-      print('\nCompute best experiment sets (max card 10) ...',end='')
-      max_number_experiments = 10
-      experiments = query.get_best_experiment_sets(NETS,MU,max_number_experiments,SP)
-      print('done.')
+    MU = TermSet(mu.union(exclude))
+  else : MU = mu
 
-      count=0
-      for e in experiments :
-        count = count+1
-        print("best experiment set",count,":")
-        utils.print_experiment_table(e)
+  print('\nCompute best single experiment ...',end='')
+  experiments = query.get_best_single_experiments(NETS, MU, SP)
+  print('done.')
 
-    utils.clean_up()
+  if experiments == [] :
+    print("no experiment can distinguish the networks.")
+    print("add more readouts or more perturbations.")
+
+  else:
+    count = 0
+    for e in experiments :
+      count = count+1
+      print("best single experiment",count,":")
+      utils.print_experiment_table(e)
+  
+    print('\nCompute best experiment sets (max card 10) ...',end='')
+    max_number_experiments = 10
+    experiments = query.get_best_experiment_sets(NETS,MU,max_number_experiments,SP)
+    print('done.')
+
+    count = 0
+    for e in experiments :
+      count = count+1
+      print("best experiment set",count,":")
+      utils.print_experiment_table(e)
+
+  utils.clean_up()
 
 
 

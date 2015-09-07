@@ -20,87 +20,79 @@ import os
 
 def print_experiment_table(experimental_design) :
 
-    nets = set()
-    readouts = set()
-    experiments = set()
-    classes = 0
-    pertubations=[]
-    difftables2=dict()    
-    for a in experimental_design:
-      if a.pred() == "counteqclasses" :
-        classes = a.arg(0)
-      if a.pred() == "pert" : # pert(E,G,S)
-        pertubations.append((a.arg(0),a.arg(1),a.arg(2)))
-      if a.pred() == "difflabel" :
-        experiment= a.arg(0)
-        net = a.arg(1)
-        readout = a.arg(2)
-        sign = a.arg(3)
-        experiments.add(experiment)
-        nets.add(net)
-        readouts.add((experiment,readout))
-        #print('add:',experiment,net,readout,sign)
-        difftables2[(experiment,net,readout)]=sign
-    lo_nets = sorted(list(nets))
-    lo_readouts = list(readouts)
-    lo_experiments = list(experiments)
-    lo_experiments.sort()
-    print('We can differentiate',classes,'classes of networks with',len(experiments),'experiments.')
+  nets         = set()
+  readouts     = set()
+  experiments  = set()
+  classes      = 0
+  pertubations =[]
+  difftables2  = dict()    
+  for a in experimental_design:
+    if a.pred() == "counteqclasses" :
+      classes = a.arg(0)
+    if a.pred() == "pert" : # pert(E,G,S)
+      pertubations.append((a.arg(0),a.arg(1),a.arg(2)))
+    if a.pred() == "difflabel" :
+      experiment = a.arg(0)
+      net        = a.arg(1)
+      readout    = a.arg(2)
+      sign       = a.arg(3)
+      experiments.add(experiment)
+      nets.add(net)
+      readouts.add((experiment,readout))
+      #print('add:',experiment,net,readout,sign)
+      difftables2[(experiment,net,readout)] = sign
+  lo_nets        = sorted(list(nets))
+  lo_readouts    = list(readouts)
+  lo_experiments = list(experiments)
+  lo_experiments.sort()
+  print('We can differentiate',classes,'classes of networks with',len(experiments),'experiments.')
 
-    for e in lo_experiments :
-      print ('experiment',e,': ',end='')
-      for p in pertubations:
-        if p[0]==e :
-          print (p[1],'=',p[2],end=', ')
-      print ('')
+  for e in lo_experiments :
+    print ('experiment',e,': ',end='')
+    for p in pertubations:
+      if p[0]==e : print (p[1],'=',p[2],end=', ')
     print ('')
-    
-    #print prediction table header
-    for e in lo_experiments :
-      print ('experiment',e,end=' | ')
-    print ('')
+  print ('')
+  
+  #print prediction table header
+  for e in lo_experiments : print ('experiment',e,end=' | ')
+  print ('')
+  for e in lo_experiments:
+    for r in lo_readouts :
+      if r[0]==e : print (r[1],end=' ')
+    print ('| ',end='')
+  print('Network')
+  
+  #print prediction table content
+  rows = []
+  for n in lo_nets :
+    row = []
     for e in lo_experiments:
       for r in lo_readouts :
-        if r[0]==e : print (r[1],end=' ')
-      print ('| ',end='')
-    print('Network')
-    
-    #print prediction table content
-    rows=[]
-    
-    for n in lo_nets :
-      row=[]
-      #print (n,end=' ')
-      for e in lo_experiments:
-        #print ('| ',end='')
-        for r in lo_readouts :
-          if r[0]==e :
-            #print (difftables2[(e,n,r[1])],end=' ')
-            row.append(difftables2[(e,n,r[1])])
-        row.append('|')
-      #print ('')
-      row.append(n)
-      rows.append(row)
+        if r[0]==e : row.append(difftables2[(e,n,r[1])])
+      row.append('|')
+    row.append(n)
+    rows.append(row)
 
-    rows.sort()
-    for r in rows :
-      for e in r :
-        if e == "1" :   print("  1 ",end='')
-        elif e == '0' : print("  0 ",end='')
-        elif e == "|" : print("|",end='')
-        else: print('',e,'',end='')
-      print('')
+  rows.sort()
+  for r in rows :
+    for e in r :
+      if e == "1"   : print("  1 ",end='')
+      elif e == '0' : print("  0 ",end='')
+      elif e == "|" : print("|",end='')
+      else: print('',e,'',end='')
+    print('')
 
 
 def clean_up() :
-  if os.path.isfile("parser.out"): os.remove("parser.out")
-  if os.path.isfile("asp_py_lextab.py"): os.remove("asp_py_lextab.py")
-  if os.path.isfile("asp_py_lextab.pyc"): os.remove("asp_py_lextab.pyc")
-  if os.path.isfile("asp_py_parsetab.py"): os.remove("asp_py_parsetab.py")
-  if os.path.isfile("asp_py_parsetab.pyc"): os.remove("asp_py_parsetab.pyc")
-  if os.path.isfile("graph_parser_lextab.py"): os.remove("graph_parser_lextab.py")
+  if os.path.isfile("parser.out")              : os.remove("parser.out")
+  if os.path.isfile("asp_py_lextab.py")        : os.remove("asp_py_lextab.py")
+  if os.path.isfile("asp_py_lextab.pyc")       : os.remove("asp_py_lextab.pyc")
+  if os.path.isfile("asp_py_parsetab.py")      : os.remove("asp_py_parsetab.py")
+  if os.path.isfile("asp_py_parsetab.pyc")     : os.remove("asp_py_parsetab.pyc")
+  if os.path.isfile("graph_parser_lextab.py")  : os.remove("graph_parser_lextab.py")
   if os.path.isfile("graph_parser_parsetab.py"): os.remove("graph_parser_parsetab.py")
-  if os.path.isfile("parsetab.py"): os.remove("parsetab.py")
-  if os.path.isfile("parsetab.pyc"): os.remove("parsetab.pyc")
-  if os.path.isfile("sif_parser_lextab.py"): os.remove("sif_parser_lextab.py")
-  if os.path.isfile("sif_parser_lextab.pyc"): os.remove("sif_parser_lextab.pyc")
+  if os.path.isfile("parsetab.py")             : os.remove("parsetab.py")
+  if os.path.isfile("parsetab.pyc")            : os.remove("parsetab.pyc")
+  if os.path.isfile("sif_parser_lextab.py")    : os.remove("sif_parser_lextab.py")
+  if os.path.isfile("sif_parser_lextab.pyc")   : os.remove("sif_parser_lextab.pyc")

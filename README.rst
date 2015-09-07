@@ -22,3 +22,4 @@ For more options you can ask for help as follows::
 	$ expidesi.py -h 		
 
 
+expidesi.py reales_Beispiel/cand_VF/ reales_Beispiel/expvar2.txt -x reales_Beispiel/excluded_experiments.txt

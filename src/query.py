@@ -33,71 +33,72 @@ heu_prg                = root + '/encodings/heuristic.lp'
 
     
 def get_best_single_experiments(nets,expvars,SP):
-    '''
-    returns the experiments as a``TermSet`` object [instance].
-    '''
-    netsf = nets.to_file()
-    expvarsf = expvars.to_file()
-   
-    if SP : gets_infl_prg = some_path_prg
-    else : gets_infl_prg = shortest_elem_path_prg
+  '''
+  returns the experiments as a``TermSet`` object [instance].
+  '''
+  netsf    = nets.to_file()
+  expvarsf = expvars.to_file()
+ 
+  if SP: gets_infl_prg = some_path_prg
+  else : gets_infl_prg = shortest_elem_path_prg
 
-    i = 1 #single experiment
-      
-    num_exp = String2TermSet('pexperiment('+str(i)+')')
-    num_expf = num_exp.to_file()
-    prg = [netsf,expvarsf,num_expf, find_best_exp_sets_prg , gets_infl_prg ]
-    coptions = '--project --opt-mode=optN --opt-strategy=0 --opt-heuristic'
-      
-    solver = GringoClasp(clasp_options=coptions)
-    solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)
+  i = 1 #single experiment
+    
+  num_exp   = String2TermSet('pexperiment('+str(i)+')')
+  num_expf  = num_exp.to_file()
+  prg       = [ netsf, expvarsf, num_expf, find_best_exp_sets_prg ,
+                gets_infl_prg ]
+  coptions  = '--project --opt-mode=optN --opt-strategy=0 --opt-heuristic'
+  solver    = GringoClasp(clasp_options=coptions)
+  solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)
 
-    os.unlink(num_expf)      
+  os.unlink(num_expf)      
 
-    os.unlink(netsf)
-    os.unlink(expvarsf)
-    return solutions
+  os.unlink(netsf)
+  os.unlink(expvarsf)
+  return solutions
 
 
 def get_best_experiment_sets(nets,expvars,num,SP):
-    '''
-    given the network and the experimental variables, and the bound on the size of an experiment set
-    returns the experiments as a``TermSet`` object [instance].
-    '''
-    netsf = nets.to_file()
-    expvarsf = expvars.to_file()
+  '''
+  given the network and the experimental variables, and the bound on the size of an experiment set
+  returns the experiments as a``TermSet`` object [instance].
+  '''
+  netsf    = nets.to_file()
+  expvarsf = expvars.to_file()
 
-    if SP : gets_infl_prg = some_path_prg
-    else : gets_infl_prg = shortest_elem_path_prg
+  if SP: gets_infl_prg = some_path_prg
+  else : gets_infl_prg = shortest_elem_path_prg
 
-    best=-1
-    best_solutions=[]
-    best_found=False
-    i=0
-    while i < num and not best_found :
-      i += 1
-      
-      num_exp = String2TermSet('pexperiment('+str(i)+')')
-      num_expf = num_exp.to_file()
-      prg = [netsf,expvarsf,num_expf, find_best_exp_sets_prg , gets_infl_prg ]
-      coptions = '--project --opt-mode=optN --opt-strategy=0 --opt-heuristic'
-      
-      solver = GringoClasp(clasp_options=coptions)
-      solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)
+  best           = -1
+  best_solutions = []
+  best_found     = False
 
-      os.unlink(num_expf)      
-      if solutions == []: best_found=True
+  i = 0
+  while i < num and not best_found :
+    i += 1
+    
+    num_exp   = String2TermSet('pexperiment('+str(i)+')')
+    num_expf  = num_exp.to_file()
+    prg       = [ netsf, expvarsf, num_expf, find_best_exp_sets_prg ,
+                  gets_infl_prg ]
+    coptions  = '--project --opt-mode=optN --opt-strategy=0 --opt-heuristic'
+    solver    = GringoClasp(clasp_options=coptions)
+    solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)
+
+    os.unlink(num_expf)      
+    if solutions == []: best_found = True
+    else:
+      opt=(solutions[0].score[0]+solutions[0].score[1])
+      if best == opt:
+        best_found = True
       else:
-        opt=(solutions[0].score[0]+solutions[0].score[1])
-        if best == opt:
-          best_found=True
-        else:
-          best = opt
-          best_solutions=solutions
-          
-    os.unlink(netsf)
-    os.unlink(expvarsf)
+        best           = opt
+        best_solutions = solutions
+        
+  os.unlink(netsf)
+  os.unlink(expvarsf)
 
-    return best_solutions
+  return best_solutions
     
 

@@ -13,8 +13,9 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with ingranalyze.  If not, see <http://www.gnu.org/licenses/>.
+# along with expidesi.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
+
 from setuptools import setup
 import os
 import sys
@@ -23,28 +24,21 @@ import distutils
 import site
 import sysconfig
 
-from setuptools.command.install import install as _install
-
-
-
-class install(_install):
-    def run(self):
-        _install.run(self)
                          
-setup(cmdclass={'install': install},
-      name='expidesi',
-      version='0.2',
-      url='http://bioasp.github.io/expidesi/',
-      license='GPLv3+',
-      description='Design experiments to differentiate interaction graph models.',
-      long_description=open('README.rst').read(),
-      author='Sven Thiele',
-      author_email='sthiele78@gmail.com',
-      packages = ['__expidesi__'],
-      package_dir = {'__expidesi__' : 'src'},
-      package_data = {'__expidesi__' : ['encodings/*.lp','encodings/*.gringo']},
-      scripts = ['expidesi.py'],
-      install_requires=[
-        "pyasp == 1.4.0"
-      ]
+setup(
+  name         = 'expidesi',
+  version      = '0.2',
+  url          = 'http://bioasp.github.io/expidesi/',
+  license      = 'GPLv3+',
+  description  ='Design experiments to differentiate interaction graph models.',
+  long_description = open('README.rst').read(),
+  author       = 'Sven Thiele',
+  author_email = 'sthiele78@gmail.com',
+  packages     = ['__expidesi__'],
+  package_dir  = {'__expidesi__' : 'src'},
+  package_data = {'__expidesi__' : ['encodings/*.lp','encodings/*.gringo']},
+  scripts      = ['expidesi.py'],
+  install_requires = [
+    "pyasp == 1.4.0"
+  ]
 )
