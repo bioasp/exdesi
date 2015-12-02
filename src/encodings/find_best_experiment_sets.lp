@@ -15,6 +15,8 @@ vertex(X)   :- vertex(N,X).
 vertex(N,X) :- net(N), vertex(X).
 
 
+elabel(N,Y,X,S) :- obs_elabel(N,Y,X,S). % iggy style
+
 
 %% filter already done experiments
 
@@ -31,11 +33,11 @@ is_redone :- not is_not_redone(DE,E), donexp(DE), exp(E).
 
 %% filter stupid zero pertubations
 % node X has a predecessor
-has_pred(X)  :- vertex(N,X), obs_elabel(N,Y,X,S), Y!=X.
+has_pred(X)  :- vertex(N,X), elabel(N,Y,X,S), Y!=X.
 % node X would be 0 because it has no predecessors
 zero_anyway(E,X) :- vertex(N,X), not has_pred(X), not pert(E,X,1), not pert(E,X,-1), exp(E).
 % node X has one predecessor which would not be 0 anyways
-one_predessor_not_zero(E,X) :- obs_elabel(N,Y,X,S), not zero_anyway(E,Y), exp(E).
+one_predessor_not_zero(E,X) :- elabel(N,Y,X,S), not zero_anyway(E,Y), exp(E).
 % node X would be 0 because all its predecessors would be  0
 zero_anyway(E,X) :- vertex(N,X), not one_predessor_not_zero(E,X), not pert(E,X,1), not pert(E,X,-1), exp(E).
 
@@ -47,13 +49,16 @@ zero_anyway(E,X) :- vertex(N,X), not one_predessor_not_zero(E,X), not pert(E,X,1
 
 % node X has a path to a preadout in network N
 to_preadout(X,N) :- preadout(X), net(N).
-to_preadout(X,N) :- to_preadout(Y,N), obs_elabel(N,X,Y,S).
+to_preadout(X,N) :- to_preadout(Y,N), elabel(N,X,Y,S).
 % node X has a path to a preadout in some network
 to_preadout(X):- to_preadout(X,N).
 
 {pert(E,X,S)} :- to_preadout(X), pperturb(X,S), exp(E). 
 pert(E,X) :- pert(E,X,S).
-pert(X) :- pert(E,X).
+pert(X)   :- pert(E,X).
+
+input(E,X):- pert(E,X).                 % iggy style
+vlabel(E,N,X,S) :- pert(E,X,S), net(N). % iggy style
 
 % no two pertubations in the same node
 :- pert(E,X,S1), pert(E,X,S2), S1!=S2.
@@ -63,13 +68,13 @@ pert(X) :- pert(E,X).
 
 % X is possible influenced by a pperturb in network N
 pinfluenced(X,N) :- pperturb(X,S), net(N).
-pinfluenced(X,N) :- pinfluenced(Y,N), obs_elabel(N,Y,X,S).
+pinfluenced(X,N) :- pinfluenced(Y,N), elabel(N,Y,X,S).
 % X is possible influenced by a pperturb in some network
 pinfluenced(X) :- pinfluenced(X,N).
 
 % X is influenced by a pert in network N
 influenced(E,X,N) :- pert(E,X), net(N).
-influenced(E,X,N) :- influenced(E,Y,N), obs_elabel(N,Y,X,S).
+influenced(E,X,N) :- influenced(E,Y,N), elabel(N,Y,X,S).
 % X is influenced by a pert in some network
 influenced(E,X) :- influenced(E,X,N).
 
@@ -87,18 +92,18 @@ biggestdiffpert(G,S,E1,E2) :- diffpert(G,S,E1,E2) , not hasbiggerdiffpert(G,S,E1
 :- exp(E1),exp(E2), E1<E2, biggestdiffpert(G,S,E1,E2), pert(E1,G,S), not pert(E2,G,S).
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% compute getspos, getsneg in according module
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% compute pos_path, neg_path in module elementary_path_constraint.lp
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% compute labeling
 
-vlabel(E,N,G,am) :- readout(E,G), getspos(E,N,G), getsneg(E,N,G).
-vlabel(E,N,G,1)  :- readout(E,G), getspos(E,N,G), not getsneg(E,N,G).
-vlabel(E,N,G,-1) :- readout(E,G), getsneg(E,N,G), not getspos(E,N,G).
+vlabel(E,N,G,am) :- readout(E,G), pos_path(E,N,G), neg_path(E,N,G).
+vlabel(E,N,G,1)  :- readout(E,G), pos_path(E,N,G), not neg_path(E,N,G).
+vlabel(E,N,G,-1) :- readout(E,G), neg_path(E,N,G), not pos_path(E,N,G).
 
-vlabel(E,N,G,0)  :- readout(E,G), not getsneg(E,N,G), not getspos(E,N,G), exp(E), vertex(N,G).
-vlabel(E,N,G,0)  :- readout(E,G), not getsneg(E,N,G), not getspos(E,N,G), exp(E), vertex(N,G).
+vlabel(E,N,G,0)  :- readout(E,G), not neg_path(E,N,G), not pos_path(E,N,G), exp(E), vertex(N,G).
+vlabel(E,N,G,0)  :- readout(E,G), not neg_path(E,N,G), not pos_path(E,N,G), exp(E), vertex(N,G).
 
 
 % define when two signs are different
@@ -145,8 +150,8 @@ newdiff(E)     :- exp(E), exp(E2), E2<E,  diff(E,N1,N2), not sdiff(E2,N1,N2).
 
 
 % who is influencing the readout that is different in two candidate network
-hasinfl_diffreadout(E,X,N) :- diffreadout(E,Y), obs_elabel(N,X,Y,S).
-hasinfl_diffreadout(E,X,N) :- hasinfl_diffreadout(E,Y,N), obs_elabel(N,X,Y,S).
+hasinfl_diffreadout(E,X,N) :- diffreadout(E,Y), elabel(N,X,Y,S).
+hasinfl_diffreadout(E,X,N) :- hasinfl_diffreadout(E,Y,N), elabel(N,X,Y,S).
 hasinfl_diffreadout(E,X)   :- hasinfl_diffreadout(E,X,N).
 % jede pertubation muss einen underschied in einem readout verantworten
 :- pert(E,X), not hasinfl_diffreadout(E,X).

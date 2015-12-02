@@ -75,37 +75,29 @@ end
 
 
 
-
-% new inputs through repair
-input(E,gen("unknownup"))    :- rep(new_influence(E,X,S)).
-vlabel(E,gen("unknownup"),1) :- rep(new_influence(E,X,S)).
-elabel(gen("unknownup"), X, 1)   :- rep(new_influence(E,X,1)).
-elabel(gen("unknownup"), X,-1)   :- rep(new_influence(E,X,-1)).
-
-
 % in a network exists under Condition E a positive path to X
 
-pos_path(E,X,@str(X)) :- input(E,X), vlabel(E,X, 1).
-neg_path(E,X,@str(X)) :- input(E,X), vlabel(E,X,-1).
+pos_path(E,N,X,@str(X)) :- input(E,X), vlabel(E,N,X, 1).
+neg_path(E,N,X,@str(X)) :- input(E,X), vlabel(E,N,X,-1).
 
-pos_path(E,X,@strconc(P,X)) :- pos_path(E,Y,P),
-                               elabel(Y,X, 1), not input(E,X), X!=Y,
-                               0==@member(X,P).
+pos_path(E,N,X,@strconc(P,X)) :- pos_path(E,N,Y,P),
+                                 elabel(N,Y,X, 1), not input(E,X), X!=Y,
+                                 0==@member(X,P).
 
-neg_path(E,X,@strconc(P,X)) :- pos_path(E,Y,P),
-                               elabel(Y,X,-1), not input(E,X), X!=Y,
-                               0==@member(X,P).
+neg_path(E,N,X,@strconc(P,X)) :- pos_path(E,N,Y,P),
+                                 elabel(N,Y,X,-1), not input(E,X), X!=Y,
+                                 0==@member(X,P).
 
-pos_path(E,X,@strconc(P,X)) :- neg_path(E,Y,P),
-                               elabel(Y,X,-1), not input(E,X), X!=Y,
-                               0==@member(X,P).
+pos_path(E,N,X,@strconc(P,X)) :- neg_path(E,N,Y,P),
+                                 elabel(N,Y,X,-1), not input(E,X), X!=Y,
+                                 0==@member(X,P).
 
-neg_path(E,X,@strconc(P,X)) :- neg_path(E,Y,P),
-                               elabel(Y,X, 1), not input(E,X), X!=Y,
-                               0==@member(X,P).
+neg_path(E,N,X,@strconc(P,X)) :- neg_path(E,N,Y,P),
+                                 elabel(N,Y,X, 1), not input(E,X), X!=Y,
+                                 0==@member(X,P).
 
-pos_path(E,V) :- pos_path(E,V,P).
-neg_path(E,V) :- neg_path(E,V,P).
+pos_path(E,N,V) :- pos_path(E,N,V,P).
+neg_path(E,N,V) :- neg_path(E,N,V,P).
 
-forbidden(E,V, 1) :- exp(E), vertex(V), not pos_path(E,V), not input(E,V).
-forbidden(E,V,-1) :- exp(E), vertex(V), not neg_path(E,V), not input(E,V).
+forbidden(E,N,V, 1) :- exp(E), vertex(V), not pos_path(E,N,V), not input(E,V).
+forbidden(E,N,V,-1) :- exp(E), vertex(V), not neg_path(E,N,V), not input(E,V).
