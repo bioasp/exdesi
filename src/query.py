@@ -27,7 +27,7 @@ from pyasp.asp import *
 
 root = __file__.rsplit('/', 1)[0]
 find_best_exp_sets_prg = root + '/encodings/find_best_experiment_sets.lp'
-elem_path_prg          = root + '/encodings/shortest_elem_path.lp'
+elem_path_prg          = root + '/encodings/elementary_path_constraint.lp'
 
     
 def get_best_single_experiments(nets,expvars):
