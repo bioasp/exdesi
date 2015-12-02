@@ -1,11 +1,8 @@
 
-%% compute getspos getsneg
-
-both(X,N) :- pinfluenced(X,N), to_preadout(X,N).
-
 #begin_lua
 
 function string:split( inSplitPattern, outResults )
+  --print("split",self)
   if not outResults then
     outResults = { }
   end
@@ -21,8 +18,36 @@ function string:split( inSplitPattern, outResults )
 end
 
 
-function strconc(x,y)
-  return tostring(x)..":"..tostring(y)
+function strconc(l,x)
+  local myString = tostring(l)..":"..tostring(x)
+  local myset = myString:split(":")
+
+  table.sort(myset)
+  retstring = ""
+  for i,n in ipairs(myset) do
+    if n=="" then
+            --    print("WHOOOPS   ",n)
+    else
+      retstring= retstring..":"..n
+    end
+  end
+  return retstring
+end
+
+function str(x)
+  local myString = tostring(x)
+  local myset = myString:split(":")
+
+  table.sort(myset)
+  retstring = ""
+  for i,n in ipairs(myset) do
+    if n=="" then
+            --    print("WHOOOPS   ",n)
+    else
+      retstring= retstring..":"..n
+    end
+  end
+  return retstring
 end
 
 
@@ -34,53 +59,53 @@ end
 
 function member(x,l)
   local myString = tostring(l)
-  local myset = Set(myString:split(":"))
-  if myset[x] then 
-    return 1
-  else 
-    return 0
+  local myset = myString:split(":")
+  for i,n in ipairs(myset) do
+ --   print(i,n)
+    if n==tostring(x) then
+      return 1
+    else
+      -- print("noteq")
+    end
   end
+  return 0
 end
 
 #end_lua.
 
-% use number of vertices as upper bound for path length
-countvertices(C)    :- C = #count{vertex(X)}.
-
-% in network n exist a pos_path from X to Y
-pos_path(E,N,gen(X),gen(Y),1, @strconc(X,Y)) :-
-       	pert(E,gen(X)), obs_elabel(N,gen(X),gen(Y), 1), not pert(E,gen(Y)),
-       	both(gen(Y),N).
-pos_path(E,N,X,gen(Y), D+1,@strconc(P,Y))    :-
-       	pos_path(E,N,X,Z,D,P), obs_elabel(N,Z,gen(Y), 1), not pert(E,gen(Y)),
-       	both(gen(Y),N),
-	0==@member(Y,P), D<C, countvertices(C).     
-                          
-pos_path(E,N,X,gen(Y), D+1,@strconc(P,Y))    :-
-       	neg_path(E,N,X,Z,D,P), obs_elabel(N,Z,gen(Y),-1), not pert(E,gen(Y)),
-       	both(gen(Y),N),
-	0==@member(Y,P), D<C, countvertices(C).
-                       
-% in network n exist a neg_path from X to Y
-neg_path(E,N,gen(X),gen(Y),1, @strconc(X,Y)) :-
-       	pert(E,gen(X)), obs_elabel(N,gen(X),gen(Y),-1), not pert(E,gen(Y)),
-       	both(gen(Y),N).
-neg_path(E,N,X,gen(Y), D+1,@strconc(P,Y))    :-
-       	neg_path(E,N,X,Z,D,P), obs_elabel(N,Z,gen(Y), 1), not pert(E,gen(Y)),
-       	both(gen(Y),N),
-	0==@member(Y,P), D<C, countvertices(C).
-                          
-neg_path(E,N,X,gen(Y), D+1,@strconc(P,Y))    :-
-       	pos_path(E,N,X,Z,D,P), obs_elabel(N,Z,gen(Y),-1), not pert(E,gen(Y)),
-       	both(gen(Y),N),
-	0==@member(Y,P), D<C, countvertices(C).
-
-% Y gets a positive influence
-getspos(E,N,Y) :- pert(E,X, 1), readout(E,Y), pos_path(E,N,X,Y,_,P).
-getspos(E,N,Y) :- pert(E,X,-1), readout(E,Y), neg_path(E,N,X,Y,_,P).
-
-% Y gets a negative influence
-getsneg(E,N,Y) :- pert(E,X, 1), readout(E,Y), neg_path(E,N,X,Y,_,P).
-getsneg(E,N,Y) :- pert(E,X,-1), readout(E,Y), pos_path(E,N,X,Y,_,P).
 
 
+
+% new inputs through repair
+input(E,gen("unknownup"))    :- rep(new_influence(E,X,S)).
+vlabel(E,gen("unknownup"),1) :- rep(new_influence(E,X,S)).
+elabel(gen("unknownup"), X, 1)   :- rep(new_influence(E,X,1)).
+elabel(gen("unknownup"), X,-1)   :- rep(new_influence(E,X,-1)).
+
+
+% in a network exists under Condition E a positive path to X
+
+pos_path(E,X,@str(X)) :- input(E,X), vlabel(E,X, 1).
+neg_path(E,X,@str(X)) :- input(E,X), vlabel(E,X,-1).
+
+pos_path(E,X,@strconc(P,X)) :- pos_path(E,Y,P),
+                               elabel(Y,X, 1), not input(E,X), X!=Y,
+                               0==@member(X,P).
+
+neg_path(E,X,@strconc(P,X)) :- pos_path(E,Y,P),
+                               elabel(Y,X,-1), not input(E,X), X!=Y,
+                               0==@member(X,P).
+
+pos_path(E,X,@strconc(P,X)) :- neg_path(E,Y,P),
+                               elabel(Y,X,-1), not input(E,X), X!=Y,
+                               0==@member(X,P).
+
+neg_path(E,X,@strconc(P,X)) :- neg_path(E,Y,P),
+                               elabel(Y,X, 1), not input(E,X), X!=Y,
+                               0==@member(X,P).
+
+pos_path(E,V) :- pos_path(E,V,P).
+neg_path(E,V) :- neg_path(E,V,P).
+
+forbidden(E,V, 1) :- exp(E), vertex(V), not pos_path(E,V), not input(E,V).
+forbidden(E,V,-1) :- exp(E), vertex(V), not neg_path(E,V), not input(E,V).

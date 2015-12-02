@@ -27,27 +27,23 @@ from pyasp.asp import *
 
 root = __file__.rsplit('/', 1)[0]
 find_best_exp_sets_prg = root + '/encodings/find_best_experiment_sets.lp'
-shortest_elem_path_prg = root + '/encodings/shortest_elem_path.lp'
-some_path_prg          = root + '/encodings/some_path.lp'
-heu_prg                = root + '/encodings/heuristic.lp'
+elem_path_prg          = root + '/encodings/shortest_elem_path.lp'
 
     
-def get_best_single_experiments(nets,expvars,SP):
+def get_best_single_experiments(nets,expvars):
   '''
   returns the experiments as a``TermSet`` object [instance].
   '''
   netsf    = nets.to_file()
   expvarsf = expvars.to_file()
- 
-  if SP: gets_infl_prg = some_path_prg
-  else : gets_infl_prg = shortest_elem_path_prg
+
 
   i = 1 #single experiment
     
   num_exp   = String2TermSet('pexperiment('+str(i)+')')
   num_expf  = num_exp.to_file()
   prg       = [ netsf, expvarsf, num_expf, find_best_exp_sets_prg ,
-                gets_infl_prg ]
+                elem_path_prg ]
   coptions  = '--project --opt-mode=optN --opt-strategy=0 --opt-heuristic'
   solver    = GringoClasp(clasp_options=coptions)
   solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)
@@ -67,9 +63,6 @@ def get_best_experiment_sets(nets,expvars,num,SP):
   netsf    = nets.to_file()
   expvarsf = expvars.to_file()
 
-  if SP: gets_infl_prg = some_path_prg
-  else : gets_infl_prg = shortest_elem_path_prg
-
   best           = -1
   best_solutions = []
   best_found     = False
@@ -81,7 +74,7 @@ def get_best_experiment_sets(nets,expvars,num,SP):
     num_exp   = String2TermSet('pexperiment('+str(i)+')')
     num_expf  = num_exp.to_file()
     prg       = [ netsf, expvarsf, num_expf, find_best_exp_sets_prg ,
-                  gets_infl_prg ]
+                  elem_path_prg ]
     coptions  = '--project --opt-mode=optN --opt-strategy=0 --opt-heuristic'
     solver    = GringoClasp(clasp_options=coptions)
     solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)

@@ -11,7 +11,7 @@ net(N) :- vertex(N,X).
 % keep isolated vertices
 vertex(N,X) :- obs_elabel(N,Y,X,S).
 vertex(N,Y) :- obs_elabel(N,Y,X,S).
-vertex(X) :- vertex(N,X).
+vertex(X)   :- vertex(N,X).
 vertex(N,X) :- net(N), vertex(X).
 
 

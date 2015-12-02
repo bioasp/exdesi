@@ -32,21 +32,17 @@ if __name__ == '__main__':
   parser.add_argument("-x", "--exclude",
     help="exclude experiments described in file EXCLUDE")
 
-  parser.add_argument('--use_some_path',
-    help='compute depmat using some path semantic instead of shortest '
-         'elementary path, default is OFF',
-    action="store_true")
+  #parser.add_argument('--use_some_path',
+    #help='compute depmat using some path semantic instead of shortest '
+         #'elementary path, default is OFF',
+    #action="store_true")
 
   args = parser.parse_args()
 
 
-  SP   = args.use_some_path
-  if SP: print('Using some path semantic: an influence is received if some '
-               'path from the perturbation to the readout exists.')
-  else : print('Using shortest elementary path semantic: an influence is '
-               'received if a shortest elementary path from the perturbation '
-                'to the readout exists.')
-
+  print('Using elementary path semantic: an influence is '
+        'received if an elementary path from the perturbation '
+        'to the readout exists.')
   
   net_dir    = args.networkfiles
   exp_string = args.experivarfile
@@ -77,7 +73,7 @@ if __name__ == '__main__':
   else : MU = mu
 
   print('\nCompute best single experiment ...',end='')
-  experiments = query.get_best_single_experiments(NETS, MU, SP)
+  experiments = query.get_best_single_experiments(NETS, MU)
   print('done.')
 
   if experiments == [] :
@@ -93,7 +89,7 @@ if __name__ == '__main__':
   
     print('\nCompute best experiment sets (max card 10) ...',end='')
     max_number_experiments = 10
-    experiments = query.get_best_experiment_sets(NETS,MU,max_number_experiments,SP)
+    experiments = query.get_best_experiment_sets(NETS,MU,max_number_experiments)
     print('done.')
 
     count = 0

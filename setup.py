@@ -32,5 +32,5 @@ setup(
   package_dir      = {'__expidesi__' : 'src'},
   package_data     = {'__expidesi__' : ['encodings/*.lp','encodings/*.gringo']},
   scripts          = ['expidesi.py'],
-  install_requires = ['pyasp == 1.4.0']
+  install_requires = ['pyasp == 1.4.2']
 )
