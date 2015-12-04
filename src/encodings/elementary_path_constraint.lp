@@ -99,5 +99,5 @@ neg_path(E,N,X,@strconc(P,X)) :- neg_path(E,N,Y,P),
 pos_path(E,N,V) :- pos_path(E,N,V,P).
 neg_path(E,N,V) :- neg_path(E,N,V,P).
 
-forbidden(E,N,V, 1) :- exp(E), vertex(V), not pos_path(E,N,V), not input(E,V).
-forbidden(E,N,V,-1) :- exp(E), vertex(V), not neg_path(E,N,V), not input(E,V).
+forbidden(E,N,V, 1) :- exp(E), vertex(N,V), not pos_path(E,N,V), not input(E,V).
+forbidden(E,N,V,-1) :- exp(E), vertex(N,V), not neg_path(E,N,V), not input(E,V).
