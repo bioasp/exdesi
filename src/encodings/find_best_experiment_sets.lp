@@ -145,54 +145,61 @@ mvlabel(E,N,G,np) :- readout(E,G), vlabel(E,N,V, 0),     vlabel(E,N,V,-1), not v
 mvlabel(E,N,G,am) :- readout(E,G), vlabel(E,N,V, 0),     vlabel(E,N,V,-1),     vlabel(E,N,V, 1).
 
 
-% define when two signs are different
+% define when two signs are different (and what the chances for differentiation are)
 uneq(1, 0).
 uneq(1,-1).
 uneq(0, 1).
 uneq(0,-1).
 uneq(-1,1).
 uneq(-1,0).
+uneq(np, 1).
+uneq( 1,np).
+uneq(nm,-1).
+uneq(-1,nm).
+
 uneq2(nm,np).
 uneq2(np,nm).
-uneq2(np, 1).
 uneq2(np,-1).
 uneq2(np, 0).
-uneq2( 1,np).
 uneq2(-1,np).
 uneq2( 0,np).
 uneq2(nm, 1).
-uneq2(nm,-1).
 uneq2(nm, 0).
 uneq2( 1,nm).
-uneq2(-1,nm).
 uneq2( 0,nm).
+uneq2(am, 1).
+uneq2(am, 0).
+uneq2(am,-1).
+uneq2( 1,am).
+uneq2( 0,am).
+uneq2(-1,am).
+
 
 uneq3(am,np).
 uneq3(am,nm).
-uneq3(am, 1).
-uneq3(am, 0).
-uneq3(am,-1).
-uneq3( 1,am).
-uneq3( 0,am).
-uneq3(-1,am).
 uneq3(np,am).
 uneq3(nm,am).
 
 
-% check whether labelings are different
-difflabel(E,N1,X,S1) :- vlabel(E,N1,X,S1), vlabel(E,N2,X,S2), N1!=N2, uneq(S1,S2), readout(E,X).
-diff1(E,N1,N2)       :- vlabel(E,N1,X,S1), vlabel(E,N2,X,S2), N1<N2,  uneq(S1,S2), readout(E,X).
+% check whether experiment may differentiate between the labels
+difflabel(E,N1,X,S1) :- mvlabel(E,N1,X,S1), mvlabel(E,N2,X,S2), N1!=N2, uneq(S1,S2), readout(E,X).
+diff1(E,N1,N2)       :- mvlabel(E,N1,X,S1), mvlabel(E,N2,X,S2), N1<N2,  uneq(S1,S2), readout(E,X).
 diff1(N1,N2)         :- diff1(E,N1,N2).
 % countdiff1(Z)        :- Z = #count{diff1(N1,N2)}.
 
-% check whether labelings MAYBE different
-difflabel(E,N1,X,S1) :- vlabel(E,N1,X,S1), vlabel(E,N2,X,S2), N1!=N2, uneq2(S1,S2), readout(E,X).
-diff2(E,N1,N2)       :- vlabel(E,N1,X,S1), vlabel(E,N2,X,S2), N1<N2,  uneq2(S1,S2), readout(E,X).
+% check whether experiment may differentiate between the labels
+difflabel(E,N1,X,S1) :- mvlabel(E,N1,X,S1), mvlabel(E,N2,X,S2), N1!=N2, uneq2(S1,S2), readout(E,X).
+diff2(E,N1,N2)       :- mvlabel(E,N1,X,S1), mvlabel(E,N2,X,S2), N1<N2,  uneq2(S1,S2), readout(E,X).
 diff2(N1,N2)         :- diff2(E,N1,N2).
-% countdiff2(Z)        :- Z = #count{diff2(N1,N2)}.
+
+% check whether experiment may differentiate between the labels
+difflabel(E,N1,X,S1) :- mvlabel(E,N1,X,S1), mvlabel(E,N2,X,S2), N1!=N2, uneq3(S1,S2), readout(E,X).
+diff3(E,N1,N2)       :- mvlabel(E,N1,X,S1), mvlabel(E,N2,X,S2), N1<N2,  uneq3(S1,S2), readout(E,X).
+diff3(N1,N2)         :- diff2(E,N1,N2).
 
 diff(E,N1,N2)  :- diff1(E,N1,N2).
 diff(E,N1,N2)  :- diff2(E,N1,N2).
+diff(E,N1,N2)  :- diff3(E,N1,N2).
 diff(E) :- diff(E,N1,N2).
 % every experiment must distinguish atleast 2 network classes
 :- exp(E), not diff(E).
@@ -227,8 +234,10 @@ counteqclasses(Z)   :- Z = #count{eqclass(X)}.
 
 
 % maximize differences
-#maximize[ not false, diff1(N1,N2) @3 ].
-#maximize[ not false, diff2(N1,N2) @2 ].
+#maximize[ not false, diff1(N1,N2) @4 ].
+#maximize[ not false, diff2(N1,N2) @3 ].
+#maximize[ not false, diff3(N1,N2) @2 ].
+
 % minimize pertubations
 #minimize[ false, pert(E,G) @1 ].
 #hide.
