@@ -92,34 +92,91 @@ biggestdiffpert(G,S,E1,E2) :- diffpert(G,S,E1,E2) , not hasbiggerdiffpert(G,S,E1
 :- exp(E1),exp(E2), E1<E2, biggestdiffpert(G,S,E1,E2), pert(E1,G,S), not pert(E2,G,S).
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% compute pos_path, neg_path in module elementary_path_constraint.lp
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 %% compute labeling
 
-vlabel(E,N,G,am) :- readout(E,G), pos_path(E,N,G), neg_path(E,N,G).
-vlabel(E,N,G,1)  :- readout(E,G), pos_path(E,N,G), not neg_path(E,N,G).
-vlabel(E,N,G,-1) :- readout(E,G), neg_path(E,N,G), not pos_path(E,N,G).
+1{vlabel(E,N,V,1), vlabel(E,N,V,-1), vlabel(E,N,V,0)} :- vertex(N,V), exp(E).
 
-vlabel(E,N,G,0)  :- readout(E,G), not neg_path(E,N,G), not pos_path(E,N,G), exp(E), vertex(N,G).
-vlabel(E,N,G,0)  :- readout(E,G), not neg_path(E,N,G), not pos_path(E,N,G), exp(E), vertex(N,G).
+% influences
+infl(E,N,V,S*T) :- elabel(N,U,V,S), vlabel(E,N,U,T).
+
+% pure influences
+pinfl(E,N,V, 1) :- elabel(N,U,V, 1), vlabel(E,N,U, 1), not vlabel(E,N,U,0), not vlabel(E,N,U,-1).
+pinfl(E,N,V,-1) :- elabel(N,U,V,-1), vlabel(E,N,U, 1), not vlabel(E,N,U,0), not vlabel(E,N,U,-1).
+pinfl(E,N,V,-1) :- elabel(N,U,V, 1), vlabel(E,N,U,-1), not vlabel(E,N,U,0), not vlabel(E,N,U, 1).
+pinfl(E,N,V, 1) :- elabel(N,U,V,-1), vlabel(E,N,U,-1), not vlabel(E,N,U,0), not vlabel(E,N,U, 1).
+
+
+% constraints
+:- forbidden(E,N,V,S), vlabel(E,N,V,S).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% compute pos_path, neg_path are in module elementary_path_constraint.lp
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% measured variations must be explained by  predecessor
+
+forbidden(E,N,V, 1) :- exp(E), vertex(N,V), not infl(E,N,V, 1), not input(E,V).
+forbidden(E,N,V,-1) :- exp(E), vertex(N,V), not infl(E,N,V,-1), not input(E,V).
+
+% propagate forward
+vlabel(E,V, 0) :- exp(E), vertex(V), not forbidden(E,V, 0).
+vlabel(E,V, 1) :- infl(E,V, 1), not forbidden(E,V, 1).
+vlabel(E,V,-1) :- infl(E,V,-1), not forbidden(E,V,-1).
+
+
+% constraint zero for generic nodes
+forbidden(E,gen(V),0) :- pinfl(E,gen(V), 1), not infl(E,gen(V),-1), not input(E,gen(V)), not ismax(E,gen(V)).
+forbidden(E,gen(V),0) :- pinfl(E,gen(V),-1), not infl(E,gen(V), 1), not input(E,gen(V)), not ismin(E,gen(V)) .
+
+% constraint zero for and nodes
+forbidden(E,and(V),0) :- infl(E,and(V), 1), not infl(E,and(V),-1), not infl(E,and(V),0), not input(E,and(V)), not ismax(E,and(V)).
+forbidden(E,and(V),0) :- infl(E,and(V),-1), not infl(E,and(V), 1), not infl(E,and(V),0), not input(E,and(V)), not ismin(E,and(V)).
+
+
+
+% project multisign/labeling
+mvlabel(E,N,G, 0) :- readout(E,G), vlabel(E,N,V, 0), not vlabel(E,N,V, 1), not vlabel(E,N,V,-1).
+mvlabel(E,N,G, 1) :- readout(E,G), vlabel(E,N,V, 1), not vlabel(E,N,V, 0), not vlabel(E,N,V,-1).
+mvlabel(E,N,G,-1) :- readout(E,G), vlabel(E,N,V,-1), not vlabel(E,N,V, 0), not vlabel(E,N,V, 1).
+mvlabel(E,N,G,nm) :- readout(E,G), vlabel(E,N,V, 0),     vlabel(E,N,V, 1), not vlabel(E,N,V,-1).
+mvlabel(E,N,G,np) :- readout(E,G), vlabel(E,N,V, 0),     vlabel(E,N,V,-1), not vlabel(E,N,V, 1).
+mvlabel(E,N,G,am) :- readout(E,G), vlabel(E,N,V, 0),     vlabel(E,N,V,-1),     vlabel(E,N,V, 1).
 
 
 % define when two signs are different
-uneq(1,0).
+uneq(1, 0).
 uneq(1,-1).
-uneq(0,1).
+uneq(0, 1).
 uneq(0,-1).
 uneq(-1,1).
 uneq(-1,0).
+uneq2(nm,np).
+uneq2(np,nm).
+uneq2(np, 1).
+uneq2(np,-1).
+uneq2(np, 0).
+uneq2( 1,np).
+uneq2(-1,np).
+uneq2( 0,np).
+uneq2(nm, 1).
+uneq2(nm,-1).
+uneq2(nm, 0).
+uneq2( 1,nm).
+uneq2(-1,nm).
+uneq2( 0,nm).
 
-uneq2(am,1).
-uneq2(am,0).
-uneq2(am,-1).
-uneq2(1,am).
-uneq2(0,am).
-uneq2(-1,am).
+uneq3(am,np).
+uneq3(am,nm).
+uneq3(am, 1).
+uneq3(am, 0).
+uneq3(am,-1).
+uneq3( 1,am).
+uneq3( 0,am).
+uneq3(-1,am).
+uneq3(np,am).
+uneq3(nm,am).
 
 
 % check whether labelings are different
