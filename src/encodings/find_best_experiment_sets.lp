@@ -4,6 +4,7 @@
 % pperturb(X,S).        possible perturbed node X, S sign of perturbation
 % done(E,X,S).          already performed experiment E, perturbe node X with sign S
 
+sign(1;-1;0).
 % possible experiments
 exp(1..X) :- pexperiment(X).
 % the networks
@@ -115,6 +116,10 @@ pinfl(E,N,V, 1) :- elabel(N,U,V,-1), vlabel(E,N,U,-1), not vlabel(E,N,U,0), not 
 % compute pos_path, neg_path are in module elementary_path_constraint.lp
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% keep observed input variation
+forbidden(E,N,V,T) :- input(E,V), vlabel(E,N,V,S), sign(S), sign(T), S!=T.
+
+
 % measured variations must be explained by  predecessor
 
 forbidden(E,N,V, 1) :- exp(E), vertex(N,V), not infl(E,N,V, 1), not input(E,V).
@@ -137,12 +142,12 @@ forbidden(E,N,and(V),0) :- infl(E,N,and(V),-1), not infl(E,N,and(V), 1), not inf
 
 
 % project multisign/labeling
-mvlabel(E,N,G, 0) :- readout(E,G), vlabel(E,N,V, 0), not vlabel(E,N,V, 1), not vlabel(E,N,V,-1).
-mvlabel(E,N,G, 1) :- readout(E,G), vlabel(E,N,V, 1), not vlabel(E,N,V, 0), not vlabel(E,N,V,-1).
-mvlabel(E,N,G,-1) :- readout(E,G), vlabel(E,N,V,-1), not vlabel(E,N,V, 0), not vlabel(E,N,V, 1).
-mvlabel(E,N,G,nm) :- readout(E,G), vlabel(E,N,V, 0),     vlabel(E,N,V, 1), not vlabel(E,N,V,-1).
-mvlabel(E,N,G,np) :- readout(E,G), vlabel(E,N,V, 0),     vlabel(E,N,V,-1), not vlabel(E,N,V, 1).
-mvlabel(E,N,G,am) :- readout(E,G), vlabel(E,N,V, 0),     vlabel(E,N,V,-1),     vlabel(E,N,V, 1).
+mvlabel(E,N,V, 0) :- readout(E,V), vlabel(E,N,V, 0), not vlabel(E,N,V, 1), not vlabel(E,N,V,-1).
+mvlabel(E,N,V, 1) :- readout(E,V), vlabel(E,N,V, 1), not vlabel(E,N,V, 0), not vlabel(E,N,V,-1).
+mvlabel(E,N,V,-1) :- readout(E,V), vlabel(E,N,V,-1), not vlabel(E,N,V, 0), not vlabel(E,N,V, 1).
+mvlabel(E,N,V,nm) :- readout(E,V), vlabel(E,N,V, 0),     vlabel(E,N,V, 1), not vlabel(E,N,V,-1).
+mvlabel(E,N,V,np) :- readout(E,V), vlabel(E,N,V, 0),     vlabel(E,N,V,-1), not vlabel(E,N,V, 1).
+mvlabel(E,N,V,am) :- readout(E,V), vlabel(E,N,V, 0),     vlabel(E,N,V,-1),     vlabel(E,N,V, 1).
 
 
 % define when two signs are different (and what the chances for differentiation are)
@@ -195,7 +200,7 @@ diff2(N1,N2)         :- diff2(E,N1,N2).
 % check whether experiment may differentiate between the labels
 difflabel(E,N1,X,S1) :- mvlabel(E,N1,X,S1), mvlabel(E,N2,X,S2), N1!=N2, uneq3(S1,S2), readout(E,X).
 diff3(E,N1,N2)       :- mvlabel(E,N1,X,S1), mvlabel(E,N2,X,S2), N1<N2,  uneq3(S1,S2), readout(E,X).
-diff3(N1,N2)         :- diff2(E,N1,N2).
+diff3(N1,N2)         :- diff3(E,N1,N2).
 
 diff(E,N1,N2)  :- diff1(E,N1,N2).
 diff(E,N1,N2)  :- diff2(E,N1,N2).
@@ -210,6 +215,7 @@ diffreadout(E,X) :- difflabel(E,N1,X,S1).
 % each further experiment must distinguish atleast 1 more network
 sdiff(E,N1,N2) :- exp(E), exp(E2), E2<=E, diff(E2,N1,N2).
 newdiff(E)     :- exp(E), exp(E2), E2<E,  diff(E,N1,N2), not sdiff(E2,N1,N2).
+newdiff(E,N1,N2)     :- exp(E), exp(E2), E2<E,  diff(E,N1,N2), not sdiff(E2,N1,N2).
 :- exp(E1), exp(E2), E2>E1, not newdiff(E2).
 
 
@@ -222,7 +228,7 @@ hasinfl_diffreadout(E,X)   :- hasinfl_diffreadout(E,X,N).
 
 
 % count eq classes
-same(N1,N2)         :- net(N1), net(N2), N1<N2, not diff1(N1,N2), not diff2(N1,N2).
+same(N1,N2)         :- net(N1), net(N2), N1<N2, not diff1(N1,N2), not diff2(N1,N2), not diff3(N1,N2).
 has_smaller_same(Y) :- same(X,Y).
 
 notunique(X)        :- same(X,Y).
@@ -235,8 +241,10 @@ counteqclasses(Z)   :- Z = #count{eqclass(X)}.
 
 % maximize differences
 #maximize[ not false, diff1(N1,N2) @4 ].
-#maximize[ not false, diff2(N1,N2) @3 ].
-#maximize[ not false, diff3(N1,N2) @2 ].
+d2(N1,N2) :- diff2(N1,N2), not diff1(N1,N2).
+#maximize[ not false, d2(N1,N2) @3 ].
+d3(N1,N2) :- diff3(N1,N2), not diff2(N1,N2), not diff1(N1,N2).
+#maximize[ not false, d3(N1,N2) @2 ].
 
 % minimize pertubations
 #minimize[ false, pert(E,G) @1 ].
@@ -246,3 +254,8 @@ counteqclasses(Z)   :- Z = #count{eqclass(X)}.
 #show pert/3.
 #show counteqclasses/1.
 #show difflabel/4.
+% #show vlabel/4.
+% #show mvlabel/4.
+#show newdiff/1.
+#show newdiff/3.
+#show sdiff/3.

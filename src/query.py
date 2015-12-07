@@ -37,7 +37,6 @@ def get_best_single_experiments(nets,expvars):
   netsf    = nets.to_file()
   expvarsf = expvars.to_file()
 
-
   i = 1 #single experiment
     
   num_exp   = String2TermSet('pexperiment('+str(i)+')')
@@ -55,14 +54,15 @@ def get_best_single_experiments(nets,expvars):
   return solutions
 
 
-def get_best_experiment_sets(nets,expvars,num,SP):
+def get_best_experiment_sets(nets,expvars,num):
   '''
   given the network and the experimental variables, and the bound on the size of an experiment set
   returns the experiments as a``TermSet`` object [instance].
   '''
+
   netsf    = nets.to_file()
   expvarsf = expvars.to_file()
-
+  
   best           = -1
   best_solutions = []
   best_found     = False
@@ -73,22 +73,25 @@ def get_best_experiment_sets(nets,expvars,num,SP):
     
     num_exp   = String2TermSet('pexperiment('+str(i)+')')
     num_expf  = num_exp.to_file()
-    prg       = [ netsf, expvarsf, num_expf, find_best_exp_sets_prg ,
+    prg       = [ netsf, expvarsf, num_expf, find_best_exp_sets_prg,
                   elem_path_prg ]
     coptions  = '--project --opt-mode=optN --opt-strategy=0 --opt-heuristic'
     solver    = GringoClasp(clasp_options=coptions)
     solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)
 
+    #print(solutions[0].score[0],solutions[0].score[1],solutions[0].score[2],solutions[0].score[3])
+    
     os.unlink(num_expf)      
     if solutions == []: best_found = True
     else:
-      opt=(solutions[0].score[0]+solutions[0].score[1])
+      opt=(solutions[0].score[0]+solutions[0].score[1]+solutions[0].score[2])
       if best == opt:
         best_found = True
       else:
         best           = opt
         best_solutions = solutions
-        
+
+       
   os.unlink(netsf)
   os.unlink(expvarsf)
 
