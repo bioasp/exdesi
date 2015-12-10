@@ -24,7 +24,7 @@ def print_experiment_table(experimental_design) :
   readouts     = set()
   experiments  = set()
   classes      = 0
-  pertubations =[]
+  pertubations = []
   difftables2  = dict()    
   for a in experimental_design:
     if a.pred() == "counteqclasses" :

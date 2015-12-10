@@ -38,13 +38,12 @@ if __name__ == '__main__':
     help="exclude experiments described in file EXCLUDE")
 
 
-  args = parser.parse_args()
-
+  args       = parser.parse_args()
   net_dir    = args.networkfiles
   exp_string = args.experivarfile
-
   flist      = os.listdir(net_dir)
   NETS       = TermSet()
+
   print('\nReading',len(flist),'networks from',net_dir,'...',end='\n')
   for f in flist :
     net_string = os.path.join(net_dir,f)
