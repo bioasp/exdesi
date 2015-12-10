@@ -24,32 +24,28 @@ from __expidesi__ import query, utils, bioquali
 if __name__ == '__main__':
 
   parser = argparse.ArgumentParser()
+  
   parser.add_argument("networkfiles",
     help="directory of influence graphs in SIF format")
+    
   parser.add_argument("experivarfile",
     help="experimental variables")
-                      
+    
+  parser.add_argument('--best_set',type=int, default=-1,
+    help="compute best set of experiments maximal number of experiments, default is OFF, 0=unlimited")
+    
   parser.add_argument("-x", "--exclude",
     help="exclude experiments described in file EXCLUDE")
 
-  #parser.add_argument('--use_some_path',
-    #help='compute depmat using some path semantic instead of shortest '
-         #'elementary path, default is OFF',
-    #action="store_true")
 
   args = parser.parse_args()
 
-
-  print('Using elementary path semantic: an influence is '
-        'received if an elementary path from the perturbation '
-        'to the readout exists.')
-  
   net_dir    = args.networkfiles
   exp_string = args.experivarfile
 
   flist      = os.listdir(net_dir)
   NETS       = TermSet()
-  print('\nReading',len(flist),'network from',net_dir,'...',end='\n')
+  print('\nReading',len(flist),'networks from',net_dir,'...',end='\n')
   for f in flist :
     net_string = os.path.join(net_dir,f)
     print ('   reading',net_string,'... ',end='')
@@ -58,13 +54,13 @@ if __name__ == '__main__':
     print('done.')
 
 
-  print('\nReading experimental variables',exp_string, '...',end='')
+  print('\nReading experimental variables',exp_string, '... ',end='')
   mu = bioquali.readExpVar(exp_string)
   print('done.')
   #print(mu)
 
   if (args.exclude) :
-    print('\nReading excluded experiments',args.exclude, '...',end='')
+    print('\nReading excluded experiments',args.exclude, '... ',end='')
     exclude = bioquali.readExcludedExp(args.exclude)
     print('done.')
     #print(exclude)
@@ -86,17 +82,20 @@ if __name__ == '__main__':
       count = count+1
       print("best single experiment",count,":")
       utils.print_experiment_table(e)
-  
-    print('\nCompute best experiment sets (max card 10) ...',end='')
-    max_number_experiments = 10
-    experiments = query.get_best_experiment_sets(NETS,MU,max_number_experiments)
-    print('done.')
 
-    count = 0
-    for e in experiments :
-      count = count+1
-      print("best experiment set",count,":")
-      utils.print_experiment_table(e)
+      
+    if args.best_set > -1 :
+      max_number_experiments = args.best_set
+      print('\nCompute best experiment sets (max experiments = '+str(max_number_experiments)+') ...',end='')
+      max_number_experiments = 10
+      experiments = query.get_best_experiment_sets(NETS,MU,max_number_experiments)
+      print('done.')
+
+      count = 0
+      for e in experiments :
+        count = count+1
+        print("best experiment set",count,":")
+        utils.print_experiment_table(e)
 
   utils.clean_up()
 

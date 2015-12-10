@@ -23,6 +23,10 @@ from pyasp.misc import *
 class Lexer:
   tokens = (
     'IDENT',
+    'NOT',
+    'AND',
+    'LB',
+    'RB',
     'PLUS',
     'MINUS',
   )
@@ -30,6 +34,10 @@ class Lexer:
   # Tokens
   
   t_IDENT = r'[a-zA-Z][a-zA-Z0-9_:\-\[\]/]*'
+  t_NOT   = r'!'
+  t_AND   = r'&'
+  t_LB    = r'\('
+  t_RB    = r'\)'
   t_PLUS  = r'1'
   t_MINUS = r'-1'
 
@@ -60,36 +68,66 @@ class Parser:
     self.args   = []
     self.lexer  = Lexer()
     import pyasp.ply.yacc as yacc
-    #self.parser = yacc.yacc(module=self, tabmodule='calc_parsetab', debugfile="calc_parser.out")
-    self.parser = yacc.yacc(module=self,optimize=1,debug=0, write_tables=0)
+    self.parser = yacc.yacc(module=self, tabmodule='calc_parsetab', debugfile="calc_parser.out")
+    #self.parser = yacc.yacc(module=self,optimize=1,debug=0, write_tables=0)
 
   def p_statement_expr(self, t):
-    '''statement : node_expression PLUS node_expression 
-                 | node_expression MINUS node_expression'''
-    if len(t)<3 : 
+    '''statement : node_expression PLUS node_expression
+                 | node_expression MINUS node_expression
+                 | node_expression PLUS andnode_expression
+                 | node_expression MINUS andnode_expression
+                 | andnode_expression PLUS node_expression
+                 | andnode_expression MINUS node_expression
+                 | andnode_expression PLUS andnode_expression
+                 | andnode_expression MINUS andnode_expression
+                 '''
+    if len(t)<3 :
       self.accu.add(Term('input', [t[1]]))
       print('input', t[1])
     else:
       #print t[1], t[2], t[3]
-      self.accu.add(Term('edge', [self.name, "gen(\""+t[1]+"\")","gen(\""+t[3]+"\")"]))
-      self.accu.add(Term('obs_elabel', [self.name, "gen(\""+t[1]+"\")","gen(\""+t[3]+"\")",t[2]]))
+      self.accu.add(Term('edge', [self.name,t[1],t[3]]))
+      self.accu.add(Term('obs_elabel', [self.name,t[1],t[3],t[2]]))
       #print Term('obs_elabel', ["gen(\""+t[1]+"\")","gen(\""+t[3]+"\")",t[2]])
+
+
+  def p_andnode_expression(self, t):
+    '''andnode_expression : LB  identlist RB '''
+    self.accu.add(Term('vertex', [self.name,"and(\""+t[2]+"\")"]))
+    t[0] = "and(\""+t[2]+"\")"
+
+
+  def p_identlist(self, t):
+    '''identlist : IDENT
+                  | NOT IDENT
+                  | IDENT AND identlist
+                  | NOT IDENT AND identlist
+                  '''
+    if len(t)==5 :
+      #print(t[1],t[2],t[3],t[4])
+      t[0] = t[1]+t[2]+t[3]+t[4]
+    elif len(t)==4 :
+      #print(t[1],t[2],t[3])
+      t[0] = t[1]+t[2]+t[3]
+    elif len(t)==3 :
+      #print(t[1],t[2])
+      t[0] = t[1]+t[2]
+    elif len(t)==2 :
+      #print(t[0],t[1])
+      t[0]=t[1]
+    else:
+      print("Syntax error at '",str(t),"'")
 
 
   def p_node_expression(self, t):
     '''node_expression : IDENT'''
-    if len(t)<3 : 
-      t[0] = t[1]
-      #print t[1]
-      self.accu.add(Term('vertex', [self.name, "gen(\""+t[1]+"\")"]))
-    else: t[0] = "unknown"
-  
-  		
+    self.accu.add(Term('vertex', [self.name,"gen(\""+t[1]+"\")"]))
+    t[0] = "gen(\""+t[1]+"\")"
+
+
   def p_error(self, t):
     print("Syntax error at '",str(t),"'")
-  
+
   def parse(self, line):
     self.parser.parse(line, lexer=self.lexer.lexer)
     return self.accu
-
-
