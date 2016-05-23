@@ -25,7 +25,7 @@ def print_experiment_table(experimental_design) :
   experiments  = set()
   classes      = 0
   pertubations = []
-  difftables2  = dict()    
+  difftables2  = dict()
   for a in experimental_design:
     if a.pred() == "counteqclasses" :
       classes = a.arg(0)
@@ -53,7 +53,7 @@ def print_experiment_table(experimental_design) :
       if p[0]==e : print (p[1],'=',p[2],end=', ')
     print ('')
   print ('')
-  
+
   #print prediction table header
   for e in lo_experiments : print ('experiment',e,end=' | ')
   print ('')
@@ -62,7 +62,7 @@ def print_experiment_table(experimental_design) :
       if r[0]==e : print (r[1],end=' ')
     print ('| ',end='')
   print('Network')
-  
+
   #print prediction table content
   rows = []
   for n in lo_nets :

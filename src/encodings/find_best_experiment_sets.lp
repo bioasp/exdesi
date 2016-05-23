@@ -150,9 +150,8 @@ prinfl(E,N,V, 1) :- elabel(N,U,V,-1),
                     pos_path(E,N,V,P),1==@member(U,P),
                     vlabel(E,N,U,-1), not vlabel(E,N,U,0), not vlabel(E,N,U, 1).
 
-forbidden(E,N,gen(V), 0) :- exp(E), prinfl(E,N,gen(V),-1), not pos_path(E,N,gen(V)), not input(E,gen(V)).
-forbidden(E,N,gen(V), 0) :- exp(E), prinfl(E,N,gen(V), 1), not neg_path(E,N,gen(V)), not input(E,gen(V)).
-
+forbidden(E,N,gen(V), 0) :- exp(E), prinfl(E,N,gen(V), 1), not neg_path(E,N,gen(V)), not input(E,gen(V)), not ismax(E,gen(V)).
+forbidden(E,N,gen(V), 0) :- exp(E), prinfl(E,N,gen(V),-1), not pos_path(E,N,gen(V)), not input(E,gen(V)), not ismin(E,gen(V)).
 
 % constraint zero for and nodes
 forbidden(E,N,and(V),0) :- infl(E,N,and(V), 1), not infl(E,N,and(V),-1), not infl(E,N,and(V),0), not input(E,and(V)), not ismax(E,and(V)).
