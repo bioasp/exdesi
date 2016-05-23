@@ -29,7 +29,7 @@ root = __file__.rsplit('/', 1)[0]
 find_best_exp_sets_prg = root + '/encodings/find_best_experiment_sets.lp'
 elem_path_prg          = root + '/encodings/elementary_path_constraint.lp'
 
-    
+
 def get_best_single_experiments(nets,expvars):
   '''
   returns the experiments as a``TermSet`` object [instance].
@@ -38,7 +38,7 @@ def get_best_single_experiments(nets,expvars):
   expvarsf = expvars.to_file()
 
   i = 1 #single experiment
-    
+
   num_exp   = String2TermSet('pexperiment('+str(i)+')')
   num_expf  = num_exp.to_file()
   prg       = [ netsf, expvarsf, num_expf, find_best_exp_sets_prg ,
@@ -47,7 +47,7 @@ def get_best_single_experiments(nets,expvars):
   solver    = GringoClasp(clasp_options=coptions)
   solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)
 
-  os.unlink(num_expf)      
+  os.unlink(num_expf)
 
   os.unlink(netsf)
   os.unlink(expvarsf)
@@ -62,7 +62,7 @@ def get_best_experiment_sets(nets,expvars,num):
 
   netsf    = nets.to_file()
   expvarsf = expvars.to_file()
-  
+
   best           = -1
   best_solutions = []
   best_found     = False
@@ -70,7 +70,7 @@ def get_best_experiment_sets(nets,expvars,num):
   i = 0
   while i < num and not best_found :
     i += 1
-    
+
     num_exp   = String2TermSet('pexperiment('+str(i)+')')
     num_expf  = num_exp.to_file()
     prg       = [ netsf, expvarsf, num_expf, find_best_exp_sets_prg,
@@ -80,8 +80,8 @@ def get_best_experiment_sets(nets,expvars,num):
     solutions = solver.run(prg,collapseTerms=True,collapseAtoms=False)
 
     #print(solutions[0].score[0],solutions[0].score[1],solutions[0].score[2],solutions[0].score[3])
-    
-    os.unlink(num_expf)      
+
+    os.unlink(num_expf)
     if solutions == []: best_found = True
     else:
       opt=(solutions[0].score[0]+solutions[0].score[1]+solutions[0].score[2])
@@ -91,10 +91,10 @@ def get_best_experiment_sets(nets,expvars,num):
         best           = opt
         best_solutions = solutions
 
-       
+
   os.unlink(netsf)
   os.unlink(expvarsf)
 
   return best_solutions
-    
+
 

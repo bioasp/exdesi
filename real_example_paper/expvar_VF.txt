@@ -1,0 +1,30 @@
+akt              = -     
+mek1             = - 
+mtorc1           = -               
+pi3k             = -   
+    
+gab1_ps          = +
+gab1_ps          = - 
+oder
+gab1_bras_py     = -
+oder
+gab1_bpi3k_py    = -
+oder
+gab1_bsph2_py    = -
+
+             
+shp2             = + 
+shp2             = -  
+oder                  
+shp2_ph          = +
+sph2_ph          = -  
+
+
+akt              = readout               
+erk              = readout
+gab1_bshp2_ph_py = readout
+gab1_ps          = readout
+jak2_p           = readout                
+plcg             = readout    
+shp2             = readout 
+stat5ab_py       = readout 
