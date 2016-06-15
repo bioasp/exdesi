@@ -63,7 +63,6 @@ if __name__ == '__main__':
     exclude = bioquali.readExcludedExp(args.exclude)
     print('done.')
     #print(exclude)
-    
     MU = TermSet(mu.union(exclude))
   else : MU = mu
 
@@ -74,7 +73,6 @@ if __name__ == '__main__':
   if experiments == [] :
     print("no experiment can distinguish the networks.")
     print("add more readouts or more perturbations.")
-
   else:
     count = 0
     for e in experiments :
