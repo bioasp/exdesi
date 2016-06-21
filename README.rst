@@ -2,9 +2,9 @@ Installation
 ------------
 
 
-You can install expidesi by running::
+You can install exdesi by running::
 
-	$ pip install --user expidesi
+	$ pip install --user exdesi
 
 On Linux the executable scripts can then be found in ``~/.local/bin``
 
@@ -15,11 +15,11 @@ Usage
 
 Typical usage is::
 
-	$ expidesi.py networkfiles expvar.txt  
+	$ exdesi.py networkfiles expvar.txt  
 
 For more options you can ask for help as follows::
 
-	$ expidesi.py -h 		
+	$ exdesi.py -h 		
 
 
-expidesi.py reales_Beispiel/cand_VF/ reales_Beispiel/expvar2.txt -x reales_Beispiel/excluded_experiments.txt
+exdesi.py reales_Beispiel/cand_VF/ reales_Beispiel/expvar2.txt -x reales_Beispiel/excluded_experiments.txt

@@ -1,14 +1,14 @@
 #!python
 # Copyright (c) 2014, Sven Thiele <sthiele78@gmail.com>
 #
-# This file is part of expidesi.
+# This file is part of exdesi.
 #
-# expidesi is free software: you can redistribute it and/or modify
+# exdesi is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# expidesi is distributed in the hope that it will be useful,
+# exdesi is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
@@ -19,7 +19,7 @@
 import sys
 import argparse
 from pyasp.asp import *
-from __expidesi__ import query, utils, bioquali
+from __exdesi__ import query, utils, bioquali
 
 if __name__ == '__main__':
 
