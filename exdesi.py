@@ -24,19 +24,18 @@ from __exdesi__ import query, utils, bioquali
 if __name__ == '__main__':
 
   parser = argparse.ArgumentParser()
-  
+
   parser.add_argument("networkfiles",
     help="directory of influence graphs in SIF format")
-    
+
   parser.add_argument("experivarfile",
     help="experimental variables")
-    
+
   parser.add_argument('--best_set',type=int, default=-1,
     help="compute best set of experiments maximal number of experiments, default is OFF, 0=unlimited")
-    
+
   parser.add_argument("-x", "--exclude",
     help="exclude experiments described in file EXCLUDE")
-
 
   args       = parser.parse_args()
   net_dir    = args.networkfiles
@@ -51,7 +50,6 @@ if __name__ == '__main__':
     net  = bioquali.readSIFGraph(net_string)
     NETS = TermSet(NETS.union(net))
     print('done.')
-
 
   print('\nReading experimental variables',exp_string, '... ',end='')
   mu = bioquali.readExpVar(exp_string)
@@ -80,7 +78,6 @@ if __name__ == '__main__':
       print("best single experiment",count,":")
       utils.print_experiment_table(e)
 
-      
     if args.best_set > -1 :
       max_number_experiments = args.best_set
       print('\nCompute best experiment sets (max experiments = '+str(max_number_experiments)+') ...',end='')
@@ -95,6 +92,5 @@ if __name__ == '__main__':
         utils.print_experiment_table(e)
 
   utils.clean_up()
-
 
 
