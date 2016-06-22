@@ -1,0 +1,32 @@
+experiment 1:
+
+mek1 =  +
+
+
+experiment 2:
+
+pi3k = -
+
+
+experiment 3:
+
+mek1 =  -
+pi3k =  -
+
+
+experiment 4:
+
+akt =  -
+
+
+experiment 5:
+
+mek1 =  -
+
+
+experiment 6:
+
+grb2_sos =  0
+erk =  +
+mtorc2 = +
+mtorc1 = -

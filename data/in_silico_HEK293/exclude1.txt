@@ -1,0 +1,17 @@
+experiment 1:
+
+depor =         0
+mek1 =  +
+
+
+experiment 2:
+
+depor =         0
+pi3k = -
+
+
+experiment 3:
+
+depor =         0
+mek1 =  -
+pi3k =  -
