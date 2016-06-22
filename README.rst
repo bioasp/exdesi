@@ -29,6 +29,6 @@ Sample files available in the data_ directory.
 A sample call would be::
         $ exdesi.py in_silico_HEK293/candidates_round2/ in_silico_HEK293/expvars.txt -x in_silico_HEK293/exclude1.txt
 
-.. _data: https://github.com/sthiele/exdesi/tree/master/data
+.. _data: https://github.com/bioasp/exdesi/tree/master/data
 
 
