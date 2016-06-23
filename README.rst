@@ -16,19 +16,12 @@ Usage
 
 Typical usage is::
 
-	$ exdesi.py [-h] [--best_set BEST_SET] [-x EXCLUDE] networkfiles experivarfile
+	$ exdesi.py candidate_directory experimental_variables_file
 	
 For more options you can ask for help as follows::
 
 	$ exdesi.py -h
-
-	$ exdesi.py candidate_directory experimental_variables_file
-
-For more options you can ask for help as follows:
-
-	$ exdesi.py -h
-	usage: exdesi.py [-h] [--best_set BEST_SET] [-x EXCLUDE]
-                 networkfiles experivarfile
+	usage: exdesi.py [-h] [--best_set BEST_SET] [-x EXCLUDE] networkfiles experivarfile
 
 	positional arguments:
 	  networkfiles          directory of influence graphs in SIF format
