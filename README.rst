@@ -7,7 +7,7 @@ You can install exdesi by running::
 	$ pip install --user exdesi
 
 On Linux the executable scripts can then be found in ``~/.local/bin``
-and on MacOS the scripts are under ``/Users/YOURUSERNAME/Library/Python/3.2/bin``.
+and on MacOS the scripts are under ``/Users/YOURUSERNAME/Library/Python/3.5/bin``.
 
 
 
