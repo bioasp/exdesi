@@ -10,7 +10,7 @@ gab1_bras_py     = -
 
 gab1_bpi3k_py    = -
 
-gab1_bsph2_py    = -
+gab1_bshp2_ph_py    = -
 
              
 shp2             = + 

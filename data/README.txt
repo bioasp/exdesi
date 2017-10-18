@@ -10,7 +10,7 @@ The following calls were used to plan the presented in silico experiments:
  exdesi.py in_silico_HEK293/candidates_round2/ in_silico_HEK293/expvars.txt -x in_silico_HEK293/exclude2.txt
 
 #3
- exdesi.py in_silico_HEK293/candidates_round2/ in_silico_HEK293/expvars.txt -x in_silico_HEK293/exclude3.txt
+ exdesi.py in_silico_HEK293/candidates_round3/ in_silico_HEK293/expvars.txt -x in_silico_HEK293/exclude3.txt
 
 Step 3 returns no experiments. We therfore increase the possible perturbations in step 4.
 
