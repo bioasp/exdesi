@@ -1,0 +1,76 @@
+
+\section{Discussion}
+
+We presented a new approach to experiment planning with multiple perturbations
+in the context of interaction graph models.
+We demonstrated \emph{in silico} that our planning approach proposes experiments
+that are suitable to restore a gold standard model from a distorted model.
+Further, we showed \emph{in vivo} that our approach proposes experiments that
+allowed us to systematically reduce our space of possible models for the
+Erythropoietin signal transduction in \texttt{HEK293} cells and
+to exclude certain interactions.
+
+In an empirical study, we showed that while the approach is sensitive to the number of possible perturbations,
+it works robustly on problems of realistic sizes.
+For all the tested candidate sets at least one discriminating experiment could be proposed.
+\texttt{ExDesi} is easily scalable in the number of possible readouts which, as expected,
+also leads to much better results.
+In contrast, the approach has only limited scalability in the number of possible perturbations
+since increasing those leads to an exponential growth of the search space.
+We are confident that future research and the progress in the used solver technology
+will allow us to scale this approach to problems with larger search spaces.
+
+Generally, as holds true for many model discrimination methods,
+models which are underconstrained (e.g., because there are too many candidate edges in the initial graph)
+can usually not be falsified because the model explains all observed behaviors.
+Thus, it is very important to start with a sparse model
+where (most) included interactions have a relatively high confidence.
+
+Only few methods for the selection of optimal sets of multiple perturbations have
+been proposed so far.
+\texttt{MEED}~\cite{szczurek2009} is an approach that uses ternary logic networks and microarray data.
+\texttt{Caspo}~\cite{videla2015} on the other hand uses Boolean logic networks and Boolean data (on and off) within a single state of the biological system.
+In contrast, our method is based on interaction graphs and uses data on (signed) changes (ups and downs between two states) as response to perturbations.
+\texttt{ExDesi} is to a certain degree related to \texttt{Caspo} as both work on topological similar models (Boolean networks transformed to interaction graphs),
+but one cannot easily extract a Boolean state from data expressing signed changes.
+For example the sign for an increased value in a variable can be interpreted as a Boolean variable that switches from an OFF state to an ON state,
+but depending on the thresholds used to mark the border between ON and OFF it could also refer to a variable that remains in its initial OFF/ON state.
+
+\begin{figure}[]
+\begin{center}
+\input{figures/planning_loop}
+\caption{
+Workflow of experiment planning.
+}
+\label{fig:planning_loop}
+\end{center}
+\end{figure}
+
+The presented approach to experiment planning integrates nicely in the systems
+biology work-flow of experimentation, data analysis, hypothesis generation and
+model inference (Figure~\ref{fig:planning_loop}).
+One usually starts the process with some prior knowledge and experimental data.
+Using network inference methods one obtains one or more candidate models.
+These network candidates together with information about already performed
+ experiments and possible perturbations and readouts are fed into the
+ experiment design process, which proposes new experiments that are suitable to
+ discriminate among these candidates.
+The resulting experiments are performed and the experimental results are
+compared with the predicted model behaviors.
+Models whose predicted behaviors are inconsistent with the experimental result
+must be discarded and the new experimental data is added to the network
+inference process to produce new model candidates.
+Ideally, this process can be re-iterated until one is left with a single model
+candidate.
+In the less optimistic scenario one may be left with a set of indistinguishable
+model candidates, then other methods must come into play.
+
+Looking at the broader context of experiment planning we see further
+optimization potential,
+for example the optimal utilization of resources which so far have not been considered.
+When the resources to perform multiple experiments in parallel exist and if the
+experiments are time-consuming it will be desirable to conduct multiple experiments
+at the same time.
+
+
+

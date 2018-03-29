@@ -1,0 +1,31 @@
+  \begin{tikzpicture}[->,semithick,>=stealth',scale=1.0]
+    \tikzstyle{label}=[text=black]
+    \tikzstyle{species}=[draw=node_gray, circle, minimum size=1.8em, fill=none,text=black]
+    \tikzstyle{speciesup}=[style=species,text=black,text opacity=1,fill=node_green,draw=edge_green]
+    \tikzstyle{speciesdn}=[style=species,text=black,text opacity=1,fill=node_red,draw=edge_red]
+    \tikzstyle{speciesnc}=[style=species,text=black,text opacity=1,fill=node_blue,draw=edge_blue]
+
+    \node[speciesdn] (A) at (0.5,4)  {$a$};
+    \node[speciesup] (D) at (2.5,4)  {$d$};
+    \node[speciesnc] (B) at (0.5,3)  {$b$};
+    \node[species]   (E) at (2.5,3)  {$e$};
+    \node[species]   (C) at (0.5,2)  {$c$};
+    \node[species]   (F) at (3.5,3)  {$f$};
+    \node[species]   (G) at (1.6,2)  {$g$};
+    \node[speciesup,accepting] (H) at (1.6,1)  {$h$};
+
+    \path[every node/.style={anchor=south}]
+     (0.5,4.5) edge[label=1] (A)
+     (1.0,3.0) edge[label=1] (B)
+     (2.5,4.5) edge[label=1] (D)
+     (A) edge[edge_green] (B)
+     (A) edge[edge_red,-|,bend right=50] (C)
+     (B) edge[edge_green] (C)
+     (D) edge[edge_green] (E)
+     (E) edge[edge_green,bend right=50] (F)
+     (F) edge[edge_green] (E)
+     (C) edge[edge_green] (G)
+     (E) edge[edge_green] (G)
+     (G) edge[edge_green] (H);
+
+  \end{tikzpicture}

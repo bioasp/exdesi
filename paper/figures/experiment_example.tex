@@ -1,0 +1,287 @@
+\begin{tabular}{cccc}
+ ~ & Experiment 1: & Experiment 2: & Experiment 3: \\
+ ~ & $pert=\{d\rightarrow \plus \}$ & $pert=\{a\rightarrow\plus\}$ & $pert=\{a\rightarrow\plus, b \rightarrow \minus \}$ \\
+ ~ & $R =\{e\}$ & $R =\{c\}$ & $R =\{e\}$ \\
+Model A)\\
+  \begin{tikzpicture}[->,semithick,>=stealth',scale=1.0]
+    \tikzstyle{label}=[text=black]
+    \tikzstyle{species}=[draw=node_gray, circle, minimum size=1.8em, fill=none,text=black]
+    \tikzstyle{speciesup}=[style=species,text=black,text opacity=1,fill=node_green,draw=edge_green]
+    \tikzstyle{speciesdn}=[style=species,text=black,text opacity=1,fill=node_red,draw=edge_red]
+    \tikzstyle{speciesnc}=[style=species,text=black,text opacity=1,fill=node_blue,draw=edge_blue]
+    \node[species] (A) at (0.5,4  )  {$a$};
+    \node[species] (B) at (0.5,3  )  {$b$};
+    \node[species] (C) at (0.5,2  )  {$c$};
+    \node[species] (D) at (1.5,3.5)  {$d$};
+    \node[species] (E) at (1.5,2.5)  {$e$};
+
+    \path[every node/.style={anchor=south}]
+     (A) edge[edge_green] (B)
+     (A) edge[edge_red,-|,bend right=50] (C)
+     (B) edge[edge_red,-|] (D)
+     (A) edge[edge_green] (D)
+     (D) edge[edge_red,-|] (E);
+  \end{tikzpicture}
+&
+  \begin{tikzpicture}[->,semithick,>=stealth',scale=1.0]
+    \tikzstyle{label}=[text=black]
+    \tikzstyle{species}=[draw, circle, minimum size=1.8em, fill=none,text=black]
+    \tikzstyle{speciesup}=[style=species,text=black,text opacity=1,fill=node_green,draw=edge_green]
+    \tikzstyle{speciesdn}=[style=species,text=black,text opacity=1,fill=node_red,draw=edge_red]
+    \tikzstyle{speciesnc}=[style=species,text=black,text opacity=1,fill=node_blue,draw=edge_blue]
+    \tikzstyle{speciesam}=[style=species,text=black,text opacity=1,fill=node_yell,draw=orange]
+
+    \node[speciesnc]           (A) at (0.5,4  )  {\scriptsize $0$};
+    \node[speciesnc]           (B) at (0.5,3  )  {\scriptsize $0$};
+    \node[speciesnc]           (C) at (0.5,2  )  {\scriptsize $0$};
+    \node[speciesup]           (D) at (1.5,3.5)  {\scriptsize $\plus$};
+    \node[speciesdn,accepting] (E) at (1.5,2.5)  {\scriptsize $\minus$};
+
+    \path[every node/.style={anchor=south}]
+     (A) edge[edge_green] (B)
+     (A) edge[edge_red,-|,bend right=50] (C)
+     (A) edge[edge_green] (D)
+     (B) edge[edge_red,-|] (D)
+     (1.5,4.0) edge[label=1] (D)
+     (D) edge[edge_red,-|] (E);
+  \end{tikzpicture}
+&
+   \begin{tikzpicture}[->,semithick,>=stealth',scale=1.0]
+    \tikzstyle{label}=[text=black]
+    \tikzstyle{species}=[draw, circle, minimum size=1.8em, fill=none,text=black]
+    \tikzstyle{speciesup}=[style=species,text=black,text opacity=1,fill=node_green,draw=edge_green]
+    \tikzstyle{speciesdn}=[style=species,text=black,text opacity=1,fill=node_red,draw=edge_red]
+    \tikzstyle{speciesnc}=[style=species,text=black,text opacity=1,fill=node_blue,draw=edge_blue]
+    \tikzstyle{speciesam}=[style=species,text=black,text opacity=1,fill=node_yell,draw=orange]
+
+    \node[speciesup]           (A) at (0.5,4  )  {\scriptsize $\plus$};
+    \node[speciesup]           (B) at (0.5,3  )  {\scriptsize $\plus$};
+    \node[speciesdn,accepting] (C) at (0.5,2  )  {\scriptsize $\minus$};
+    \node[speciesam]           (D) at (1.5,3.5)  {\scriptsize \am};
+    \node[speciesam]           (E) at (1.5,2.5)  {\scriptsize \am};
+
+    \path[every node/.style={anchor=south}]
+     (0.5,4.5) edge[label=1] (A)
+     (A) edge[edge_green] (B)
+     (A) edge[edge_red,-|,bend right=50] (C)
+     (B) edge[edge_red,-|] (D)
+     (A) edge[edge_green] (D)
+     (D) edge[edge_red,-|] (E);
+  \end{tikzpicture}
+&
+   \begin{tikzpicture}[->,semithick,>=stealth',scale=1.0]
+    \tikzstyle{label}=[text=black]
+    \tikzstyle{species}=[draw, circle, minimum size=1.8em, fill=none,text=black]
+    \tikzstyle{speciesup}=[style=species,text=black,text opacity=1,fill=node_green,draw=edge_green]
+    \tikzstyle{speciesdn}=[style=species,text=black,text opacity=1,fill=node_red,draw=edge_red]
+    \tikzstyle{speciesnc}=[style=species,text=black,text opacity=1,fill=node_blue,draw=edge_blue]
+    \tikzstyle{speciesam}=[style=species,text=black,text opacity=1,fill=node_yell,draw=orange]
+
+    \node[speciesup]           (A) at (0.5,4  )  {\scriptsize $\plus$};
+    \node[speciesdn]           (B) at (0.5,3  )  {\scriptsize $\minus$};
+    \node[speciesdn]           (C) at (0.5,2  )  {\scriptsize $\minus$};
+    \node[speciesup]           (D) at (1.5,3.5)  {\scriptsize $\plus$};
+    \node[speciesdn,accepting] (E) at (1.5,2.5)  {\scriptsize $\minus$};
+
+    \path[every node/.style={anchor=south}]
+     (0.5,4.5) edge[label=1] (A)
+     (A) edge[edge_green] (B)
+     (A) edge[edge_red,-|,bend right=50] (C)
+     (0.0,3.0) edge[label=1] (B)
+     (B) edge[edge_red,-|] (D)
+     (A) edge[edge_green] (D)
+     (D) edge[edge_red,-|] (E);
+  \end{tikzpicture}
+\\
+\\
+Model B)\\
+  \begin{tikzpicture}[->,semithick,>=stealth',scale=1.0]
+    \tikzstyle{label}=[text=black]
+    \tikzstyle{species}=[draw=node_gray, circle, minimum size=1.8em, fill=none,text=black]
+    \tikzstyle{speciesup}=[style=species,text=black,text opacity=1,fill=node_green,draw=edge_green]
+    \tikzstyle{speciesdn}=[style=species,text=black,text opacity=1,fill=node_red,draw=edge_red]
+    \tikzstyle{speciesnc}=[style=species,text=black,text opacity=1,fill=node_blue,draw=edge_blue]
+
+    \node[species] (A) at (0.5,4  )  {$a$};
+    \node[species] (B) at (0.5,3  )  {$b$};
+    \node[species] (C) at (0.5,2  )  {$c$};
+    \node[species] (D) at (1.5,3.5)  {$d$};
+    \node[species] (E) at (1.5,2.5)  {$e$};
+
+    \path[every node/.style={anchor=south}]
+     (A) edge[edge_green] (B)
+     (A) edge[edge_red,-|,bend right=50] (C)
+     (B) edge[edge_red,-|] (D)
+     (A) edge[edge_green] (D)
+     (D) edge[edge_green] (E);
+  \end{tikzpicture}
+&
+  \begin{tikzpicture}[->,semithick,>=stealth',scale=1.0]
+    \tikzstyle{label}=[text=black]
+    \tikzstyle{species}=[draw, circle, minimum size=1.8em, fill=none,text=black]
+    \tikzstyle{speciesup}=[style=species,text=black,text opacity=1,fill=node_green,draw=edge_green]
+    \tikzstyle{speciesdn}=[style=species,text=black,text opacity=1,fill=node_red,draw=edge_red]
+    \tikzstyle{speciesnc}=[style=species,text=black,text opacity=1,fill=node_blue,draw=edge_blue]
+    \tikzstyle{speciesam}=[style=species,text=black,text opacity=1,fill=node_yell,draw=orange]
+
+    \node[speciesnc]           (A) at (0.5,4)    {\scriptsize $0$};
+    \node[speciesnc]           (B) at (0.5,3)    {\scriptsize $0$};
+    \node[speciesnc]           (C) at (0.5,2)    {\scriptsize $0$};
+    \node[speciesup]           (D) at (1.5,3.5)  {\scriptsize $\plus$};
+    \node[speciesup,accepting] (E) at (1.5,2.5)  {\scriptsize $\plus$};
+
+    \path[every node/.style={anchor=south}]
+     (A) edge[edge_green] (B)
+     (A) edge[edge_red,-|,bend right=50] (C)
+     (B) edge[edge_red,-|] (D)
+     (A) edge[edge_green] (D)
+     (1.5,4.0) edge[label=1] (D)
+     (D) edge[edge_green] (E);
+  \end{tikzpicture}
+&
+  \begin{tikzpicture}[->,semithick,>=stealth',scale=1.0]
+    \tikzstyle{label}=[text=black]
+    \tikzstyle{species}=[draw, circle, minimum size=1.8em, fill=none,text=black]
+    \tikzstyle{speciesup}=[style=species,text=black,text opacity=1,fill=node_green,draw=edge_green]
+    \tikzstyle{speciesdn}=[style=species,text=black,text opacity=1,fill=node_red,draw=edge_red]
+    \tikzstyle{speciesnc}=[style=species,text=black,text opacity=1,fill=node_blue,draw=edge_blue]
+    \tikzstyle{speciesam}=[style=species,text=black,text opacity=1,fill=node_yell,draw=orange]
+
+    \node[speciesup]            (A) at (0.5,4  )  {\scriptsize $\plus$};
+    \node[speciesup]            (B) at (0.5,3  )  {\scriptsize $\plus$};
+    \node[speciesdn, accepting] (C) at (0.5,2  )  {\scriptsize $\minus$};
+    \node[speciesam]            (D) at (1.5,3.5)  {\scriptsize \am};
+    \node[speciesam]            (E) at (1.5,2.5)  {\scriptsize \am};
+
+    \path[every node/.style={anchor=south}]
+     (0.5,4.5) edge[label=1] (A)
+     (A) edge[edge_green] (B)
+     (A) edge[edge_red,-|,bend right=50] (C)
+     (B) edge[edge_red,-|] (D)
+     (A) edge[edge_green] (D)
+     (D) edge[edge_green] (E);
+  \end{tikzpicture}
+&
+   \begin{tikzpicture}[->,semithick,>=stealth',scale=1.0]
+    \tikzstyle{label}=[text=black]
+    \tikzstyle{species}=[draw, circle, minimum size=1.8em, fill=none,text=black]
+    \tikzstyle{speciesup}=[style=species,text=black,text opacity=1,fill=node_green,draw=edge_green]
+    \tikzstyle{speciesdn}=[style=species,text=black,text opacity=1,fill=node_red,draw=edge_red]
+    \tikzstyle{speciesnc}=[style=species,text=black,text opacity=1,fill=node_blue,draw=edge_blue]
+    \tikzstyle{speciesam}=[style=species,text=black,text opacity=1,fill=node_yell,draw=orange]
+
+    \node[speciesup]           (A) at (0.5,4  )  {\scriptsize $\plus$};
+    \node[speciesdn]           (B) at (0.5,3  )  {\scriptsize $\minus$};
+    \node[speciesdn]           (C) at (0.5,2  )  {\scriptsize $\minus$};
+    \node[speciesup]           (D) at (1.5,3.5)  {\scriptsize $\plus$};
+    \node[speciesup,accepting] (E) at (1.5,2.5)  {\scriptsize $\plus$};
+
+    \path[every node/.style={anchor=south}]
+     (0.0,3.0) edge[label=1] (B)
+     (0.5,4.5) edge[label=1] (A)
+     (A) edge[edge_green] (B)
+     (A) edge[edge_red,-|,bend right=50] (C)
+     (B) edge[edge_red,-|] (D)
+     (A) edge[edge_green] (D)
+     (D) edge[edge_green] (E);
+  \end{tikzpicture}
+\\
+\\
+Model C)\\
+  \begin{tikzpicture}[->,semithick,>=stealth',scale=1.0]
+    \tikzstyle{label}=[text=black]
+    \tikzstyle{species}=[draw=node_gray, circle, minimum size=1.8em, fill=none,text=black]
+    \tikzstyle{speciesup}=[style=species,text=black,text opacity=1,fill=node_green,draw=edge_green]
+    \tikzstyle{speciesdn}=[style=species,text=black,text opacity=1,fill=node_red,draw=edge_red]
+    \tikzstyle{speciesnc}=[style=species,text=black,text opacity=1,fill=node_blue,draw=edge_blue]
+
+    \node[species] (A) at (0.5,4)  {$a$};
+    \node[species] (B) at (0.5,3)  {$b$};
+    \node[species] (C) at (0.5,2)  {$c$};
+    \node[species] (D) at (1.5,3.5)  {$d$};
+    \node[species] (E) at (1.5,2.5)  {$e$};
+
+    \path[every node/.style={anchor=south}]
+%      (1.0,4.5) edge[label=1] (A)
+     (A) edge[edge_green] (B)
+     (A) edge[edge_red,-|,bend right=50] (C)
+     (B) edge[edge_green] (C)
+     (B) edge[edge_red,-|] (D)
+     (A) edge[edge_green] (D)
+     (D) edge[edge_green] (E);
+  \end{tikzpicture}
+&
+  \begin{tikzpicture}[->,semithick,>=stealth',scale=1.0]
+    \tikzstyle{label}=[text=black]
+    \tikzstyle{species}=[draw, circle, minimum size=1.8em, fill=none,text=black]
+    \tikzstyle{speciesup}=[style=species,text=black,text opacity=1,fill=node_green,draw=edge_green]
+    \tikzstyle{speciesdn}=[style=species,text=black,text opacity=1,fill=node_red,draw=edge_red]
+    \tikzstyle{speciesnc}=[style=species,text=black,text opacity=1,fill=node_blue,draw=edge_blue]
+    \tikzstyle{speciesam}=[style=species,text=black,text opacity=1,fill=node_yell,draw=orange]
+
+    \node[speciesnc]            (A) at (0.5,4  )  {\scriptsize $0$};
+    \node[speciesnc]            (B) at (0.5,3  )  {\scriptsize $0$};
+    \node[speciesnc]            (C) at (0.5,2  )  {\scriptsize $0$};
+    \node[speciesup]            (D) at (1.5,3.5)  {\scriptsize $\plus$};
+    \node[speciesup, accepting] (E) at (1.5,2.5)  {\scriptsize $\plus$};
+
+    \path[every node/.style={anchor=south}]
+     (A) edge[edge_green] (B)
+     (A) edge[edge_red,-|,bend right=50] (C)
+     (B) edge[edge_green] (C)
+     (B) edge[edge_red,-|] (D)
+     (A) edge[edge_green] (D)
+     (1.5,4.0) edge[label=1] (D)
+     (D) edge[edge_green] (E);
+  \end{tikzpicture}
+&
+  \begin{tikzpicture}[->,semithick,>=stealth',scale=1.0]
+    \tikzstyle{label}=[text=black]
+    \tikzstyle{species}=[draw, circle, minimum size=1.8em, fill=none,text=black]
+    \tikzstyle{speciesup}=[style=species,text=black,text opacity=1,fill=node_green,draw=edge_green]
+    \tikzstyle{speciesdn}=[style=species,text=black,text opacity=1,fill=node_red,draw=edge_red]
+    \tikzstyle{speciesnc}=[style=species,text=black,text opacity=1,fill=node_blue,draw=edge_blue]
+    \tikzstyle{speciesam}=[style=species,text=black,text opacity=1,fill=node_yell,draw=orange]
+
+    \node[speciesup]            (A) at (0.5,4  )  {\scriptsize $\plus$};
+    \node[speciesup]            (B) at (0.5,3  )  {\scriptsize $\plus$};
+    \node[speciesam, accepting] (C) at (0.5,2  )  {\scriptsize \am};
+    \node[speciesam]            (D) at (1.5,3.5)  {\scriptsize \am};
+    \node[speciesam]            (E) at (1.5,2.5)  {\scriptsize \am};
+
+    \path[every node/.style={anchor=south}]
+     (0.5,4.5) edge[label=1] (A)
+     (A) edge[edge_green] (B)
+     (A) edge[edge_red,-|,bend right=50] (C)
+     (B) edge[edge_green] (C)
+     (B) edge[edge_red,-|] (D)
+     (A) edge[edge_green] (D)
+     (D) edge[edge_green] (E);
+  \end{tikzpicture}
+&
+   \begin{tikzpicture}[->,semithick,>=stealth',scale=1.0]
+    \tikzstyle{label}=[text=black]
+    \tikzstyle{species}=[draw, circle, minimum size=1.8em, fill=none,text=black]
+    \tikzstyle{speciesup}=[style=species,text=black,text opacity=1,fill=node_green,draw=edge_green]
+    \tikzstyle{speciesdn}=[style=species,text=black,text opacity=1,fill=node_red,draw=edge_red]
+    \tikzstyle{speciesnc}=[style=species,text=black,text opacity=1,fill=node_blue,draw=edge_blue]
+    \tikzstyle{speciesam}=[style=species,text=black,text opacity=1,fill=node_yell,draw=orange]
+
+    \node[speciesup]           (A) at (0.5,4  )  {\scriptsize $\plus$};
+    \node[speciesdn]           (B) at (0.5,3  )  {\scriptsize $\minus$};
+    \node[speciesdn]           (C) at (0.5,2  )  {\scriptsize $\minus$};
+    \node[speciesup]           (D) at (1.5,3.5)  {\scriptsize $\plus$};
+    \node[speciesup,accepting] (E) at (1.5,2.5)  {\scriptsize $\plus$};
+
+    \path[every node/.style={anchor=south}]
+     (0.0,3.0) edge[label=1] (B)
+     (0.5,4.5) edge[label=1] (A)
+     (A) edge[edge_green] (B)
+     (A) edge[edge_red,-|,bend right=50] (C)
+     (B) edge[edge_green] (C)
+     (B) edge[edge_red,-|] (D)
+     (A) edge[edge_green] (D)
+     (D) edge[edge_green] (E);
+  \end{tikzpicture}
+\\
+\end{tabular}

@@ -1,0 +1,31 @@
+  \begin{tikzpicture}[->,>=stealth',scale=1.2]
+    \sffamily
+    \tikzstyle{label}=[text=black]
+    \tikzstyle{wht}=[draw=none, fill=none,text=black,text opacity=1,text=black]
+    \tikzstyle{bbox}=[draw=yellow,ellipse,minimum height=3em, text opacity=1,fill=lightyellow,text=black, text badly centered]
+    \tikzstyle{box}=[draw=node_blue,rectangle,minimum height=2em,text opacity=1,fill=lightblue,text=black, text badly centered, text width=6em]
+    \tikzstyle{decision}=[diamond, draw, fill=red!15, text width=5em, text badly centered, node distance=15ex, inner sep=0pt]
+
+
+    \node[box] (PED) at (-0.5,3.3)  {\small Prior experiment data};
+    \node[box] (PKN) at (4.5,3.5)     {\small Prior network candidates};
+    \node[bbox,minimum height=3em, text width=4em] (NI) at (2.5,2.25)  {\small Network inference};
+    \node[box] (C) at (2.5,1.0)     {\small New network candidates};
+    \node[bbox] (EP) at (2.5,-0.25) {\small Experiment design};
+    \node[box]  (PE) at (2.5,-1.6)  {\small $1\dots n$ experiment proposals};
+    \node[bbox] (E) at (2.5,-3)   {\small Experimentation};
+    \node[box] (ED) at (-0.5,-3)     {\small New experiment data};
+%     \node[label] (l) at (0,-1.5)  {};
+
+    \path[every node/.style={anchor=south}]
+     (PED) edge[->] (NI)
+     (PKN) edge[->] (NI)
+     (NI)  edge[->] (C)
+     (C)   edge[->] (EP)
+     (EP)  edge[->] (PE)
+     (PE)  edge[->] (E)
+     (E)   edge[->] (ED)
+     (ED)  edge[->] (PED);
+     \draw[->,rounded corners=1em, thin,]
+     (C.east) -- (4.5,1.0) -- (4.5,2.2) -- (PKN.south);
+  \end{tikzpicture}

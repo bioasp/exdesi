@@ -1,0 +1,60 @@
+
+% signs
+\newcommand\BS[1]{\text{\fontshape{n}\fontseries{bx}\selectfont#1}}
+\newcommand\plus{\BS{+}}
+\newcommand\minus{\BS{--}}
+\newcommand\np{$\boldsymbol{\ominus}$}
+\newcommand\nm{$\boldsymbol{\oplus}$}
+\usepackage{mathabx}
+\newcommand\am{$\Asterisk$}
+%\newcommand\am{$?$}
+
+
+% \newcommand\pert[2]{ptrb(#1,#2)}
+\newcommand\pert[2]{#1\circ #2}
+
+
+\definecolor{node_gray}{RGB}{100,100,100}
+\definecolor{node_green}{RGB}{170,230,170}
+\definecolor{edge_green}{RGB}{70,150,70}
+\definecolor{node_red}{RGB}{255,153,153}
+\definecolor{edge_red}{RGB}{230,100,100}
+\definecolor{node_blue}{RGB}{130,185,255}
+\definecolor{edge_blue}{RGB}{100,125,255}
+\definecolor{node_yell}{RGB}{255,230,65}
+
+\definecolor{lightyellow}{rgb}{1.0, 1.0, 0.88} % used inflow chart
+\definecolor{lightblue}{rgb}{0.88, 0.88, 1.0} % used inflow chart
+
+\newcommand\gc{\cellcolor{node_green}}
+\newcommand\rc{\cellcolor{node_red}}
+
+\newcommand\cand{Cand}
+\newcommand\pr{R_p}
+\newcommand\pd{I_p}
+\newcommand\pa{A_p}
+\newcommand\pz{Z_p}
+\newcommand\done{Done}
+
+\newcommand\readouts{R}
+\newcommand\decreased{I}
+\newcommand\increased{A}
+\newcommand\constant{Z}
+
+\newcommand\perturbed{P}
+
+\newtheorem{definition}{Definition}
+\newtheorem{srule}{Rule}
+
+% rotate column header
+\usepackage{adjustbox}
+\usepackage{array}
+
+\newcolumntype{R}[2]{%
+    >{\adjustbox{angle=#1,lap=\width-(#2)}\bgroup}%
+    l%
+    <{\egroup}%
+}
+\newcommand*\rot{\multicolumn{1}{R{45}{1em}}}% no optional argument here, please!
+
+\newcommand\expidesi{\texttt{ExDesi}}

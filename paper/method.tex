@@ -1,0 +1,399 @@
+
+\section{Methods} \label{method}
+
+\paragraph*{\bf Interaction graph}
+% \subsubsection*{Interaction graph}
+
+An \emph{interaction graph} (IG) is a directed graph $(V,E,\sigma)$,
+ where
+ $V$ is a set of nodes,
+ $E$ a set of edges, and
+ $\sigma : E \rightarrow \{\plus,\minus\}$ a labeling of the edges.
+Every node in $V$ represents a species in the modeled system and
+an edge $i {\,\rightarrow\,} j$ means that the change of~$i$ in time
+influences the activity or concentration level of~$j$.
+Every edge $i {\,\rightarrow\,} j$ of an influence graph can be labeled with a
+sign, either~$\plus$ or~$\minus$, denoted by~$\sigma(i,j)$,
+where~$\plus$ resp. $\minus$ indicates that $i$ tends to increase resp. decrease the level or activity of $j$.
+An example influence graph is given in Figure~\ref{fig:complex_example}.
+
+Interaction graphs are an abstraction of dynamic
+quantitative systems where a quantitative state of the system at time point $t$
+is a mapping $s_t : V \rightarrow \mathbb{R}^+$.
+Sign consistency methods use the signs $\{\plus, \minus, 0\}$ to denote changes
+in the variables of the modeled system in the transient phase or after
+steady-state shift experiments.
+Examples for such changes could be increased or decreased metabolite
+concentrations or expression levels of genes.
+The signs $\plus$ and $\minus$ denote increase and decrease and 0 signifies no-change.
+Sign consistency methods relate the IG model of the system and the changes
+between system states by representing the differences as labels on the nodes in
+the graph.
+For example, the changes between two states of the system can be represented as
+a sign labeling of the IG.
+Given two system states $s_i$ and $s_j$ the differences between these states
+can be represented as the labeling
+$\mu_{ij} : V \rightarrow \{\plus, \minus, 0\}$ with
+$\mu_{ij}(x) = sign(s_j(x) - s_i(x))$.
+
+\begin{figure}[ht]
+\begin{center}
+\input{figures/complex_example}
+\caption{
+Example of an interaction graph with experiment data.
+Input variables are marked with a small black arrow.
+The color indicates the induced or measured difference between two system states,
+ green (increase), red (decrease), blue (0-change).
+The readout node is marked with a double circle.
+}
+\label{fig:complex_example}
+\end{center}
+\end{figure}
+
+
+\paragraph*{\bf Inputs and perturbations}
+
+Biological systems react to changes in their environment and to internal
+manipulations.
+The variables of a system which are controlled externally are called \emph{inputs}
+and we denote the set of nodes that represent input variables with $I \subseteq V$.
+Because input nodes are controlled externally, they are excluded from the sign
+consistency rules.
+
+Perturbations are externally induced changes of the input variables
+(e.g.\ by gene knockouts, down regulation, or use of  inhibitors).
+The sign of a perturbation signifies the difference to a reference state of the system.
+The signs of the perturbation
+are defined as $pert: I \rightarrow \{\plus, \minus, 0\}$,
+where an increase perturbation $pert(i) = \plus$ (resp. decrease perturbation $pert(i)=\minus$) means that $i$
+is controlled such that it has a significant higher (resp. lower) value than in
+the reference state.
+A special role play so called 0-perturbations with $pert(i)=0$.
+These are perturbations where the value of a variable is kept constant.
+Such perturbations are particular useful as one can practically ignore the
+outgoing edges of 0-perturbed nodes because these nodes can not be responsible
+for any downstream changes.
+It is easy to see that for complex models with many cyclic interactions such
+perturbations are very useful to investigate the influence of single components
+while excluding the influence of others.
+
+
+
+\paragraph*{\bf Predicting model behaviors}
+
+A prediction function in the sign consistency approach is a function
+ $pred: V \times (I \rightarrow \{\plus,\minus,0 \}) \rightarrow 2^{\{\plus,\minus,0 \}}\setminus\emptyset$.
+Given a vertex and a perturbation function it returns a nonempty set of possible signs.
+The here presented approach is similar to the \emph{dependency matrix}~\cite{sk06}
+to make behavioral predictions for initial responses.
+We consider pair-wise dependencies among the variables in the IG model.
+The relations between two nodes are:
+\begin{itemize}
+ \item $i$ is an activator of $j$ if there exists a positive elementary path from $i$ to $j$, and
+ \item $i$ is an inhibitor of $j$ if there exists a negative elementary path from $i$ to $j$.
+\end{itemize}
+%
+A pair of nodes $i$, $j$ can be in one, both, or none of these relations.
+Using these relations our prediction function is defined as follows.
+Given a perturbation function $pert: I \rightarrow \{\plus,\minus,0 \}$
+ the dependency matrix defines a prediction function
+ $pred: V \times (I \rightarrow \{\plus,\minus,0 \}) \rightarrow  2^{\{\plus,\minus,0 \}}\setminus\emptyset $ such that: \\
+ $\plus \in pred(j,pert)$ if
+\begin{itemize}
+  \item $pert(j)=\plus$, or
+  \item $j \notin I$ and $\exists i \in I$ and $pert(i)=\plus$  and $i$ is an activator of $j$, or
+  \item $j \notin I$ and $\exists i \in I$ and $pert(i)=\minus$ and $i$ is an inhibitor of $j$.
+\end{itemize}
+  $\minus \in pred(j,pert)$ if
+\begin{itemize}
+  \item $pert(j)=\minus$, or
+  \item $j \notin I$ and $\exists i \in I$ and $pert(i)=\minus$ and $i$ is an activator of $j$, or
+  \item $j \notin I$ and $\exists i \in I$ and $pert(i)=\plus$  and $i$ is an inhibitor of $j$.
+\end{itemize}
+  $0 \in pred(j,pert)$ if
+\begin{itemize}
+  \item $pert(j)=0$, or
+  \item $j \notin I$ and $\plus \in    pred(j,pert)$ and $\minus \in    pred(j,pert)$, or
+  \item $j \notin I$ and $\plus \notin pred(j,pert)$ and $\minus \notin pred(j,pert)$.\\
+\end{itemize}
+% {
+% \setlength\tabcolsep{3.8pt}
+% \begin{tabular}{lll}
+%  \\
+%  $\plus \in pred(j,pert)$  & if & $pert(j)=\plus$, or\\
+%                            &    & $j \notin I$ and $\exists i \in I$ and $pert(i)=\plus$  and $i$ is an activator of $j$, or\\
+%                            &    & $j \notin I$ and $\exists i \in I$ and $pert(i)=\minus$ and $i$ is an inhibitor of $j$,\\
+% \\
+%  $\minus \in pred(j,pert)$ & if & $pert(j)=\minus$, or\\
+%                            &    & $j \notin I$ and $\exists i \in I$ and $pert(i)=\minus$ and $i$ is an activator of $j$, or\\
+%             ~              & ~  & $j \notin I$ and $\exists i \in I$ and $pert(i)=\plus$  and $i$ is an inhibitor of $j$, \\
+% \\
+%  $0 \in pred(j,pert)$      & if & $pert(j)=0$, or\\
+%                            & ~  & $j \notin I$ and $\plus \in    pred(j,pert)$ and $\minus \in    pred(j,pert)$, or \\
+%                            &    & $j \notin I$ and $\plus \notin pred(j,pert)$ and $\minus \notin pred(j,pert)$.\\
+% \\
+% \end{tabular}
+% }
+
+In the following we simply write $pred(j)$ instead of $pred(j,pert)$.
+This prediction function can predict the behaviors
+ increase = $\{\plus\}$,
+ decrease = $\{\minus\}$,
+ 0-change = $\{0\}$, or
+ undetermined=$\{\plus,\minus,0 \}$=\am.
+In principle sign consistency based methods can also make predictions as
+ no-increase          = $\{\minus,0 \}$,
+ no-decrease          = $\{\plus,0 \}$, and
+ increase-or-decrease = $\{\plus, \minus\}$,
+for example when backward propagation is applied~\cite{sthiele15}.
+Here we apply only forward propagation (from the inputs to the readouts) and
+therefore do not make such predictions.
+Figure~\ref{fig:experiment_example} shows three models and their predicted
+reaction with respect to perturbations.
+It contains examples for each type of prediction.
+Model A predicts 0-change in $a$ wrt. Experiment~1: $pred(a)= 0$, because there
+exists no activator nor inhibitor of $a$ in $I$.
+With respect to Experiment~2,
+Model A predicts an increase in $b$: $pred(b)=\plus$, and a decrease in $c$: $pred(c)=\minus$,
+because $a$ is an activator of $b$ and an inhibitor of $c$ and $pert(a)=\plus$.
+Finally, with respect to Experiment~2, Model A makes no prediction for $d$: $pred(d)=\Asterisk$,
+because $a$ can be an activator as well as an inhibitor of $d$.
+
+
+\paragraph*{\bf Experiment}
+
+An experiment consists of two parts, the experiment setup and the measurements.
+The experiment setup describes which perturbations are performed,
+ and which species will be measured.
+Formally, given an IG model $(V,E,\sigma)$,
+ an \emph{experiment setup} is defined as a tuple $(I,pert,R)$ where
+ $pert: I \rightarrow \{ \plus, \minus, 0 \}$ describes the performed perturbations,
+ and $R\subseteq V$ is the set of readouts  (species which are measured).
+
+The measurements describe the observed difference in the readouts
+ between the reference state and the measured state.
+Given a set of readout nodes $R \subseteq V$, the measurements define a mapping
+ $m : R \rightarrow \{\plus, \minus, 0\}$.
+ \footnote{For our approach to discretization and the handling of uncertain observations see~\cite{sthiele15}}
+%
+Following the sign consistency approach, perturbations and measurements define
+constraints on the labeling of the influence graph.
+An illustration of an experiment setup is given in Figure~\ref{fig:complex_example}.
+
+
+\paragraph*{\bf Network inference as optional preprocessing}
+
+The input for \expidesi\ is always a set of candidate models.
+One has either given an ad hoc set of candidate models or,
+what is mostly (and also in the realistic application described in section 3) the case,
+an initial (text book) model and some set of (a priori) measurements from previous experiments.
+For the latter case, the given data are often inconsistent with the initial model structure ($m(i) \notin pred(i)$).
+Here, based on suitable network inference methods,
+these data are then used to generate consistent candidate models which then serve as input for \expidesi.
+
+% While the removal of certain edges can improve the agreement between measurements and
+% network topology,
+% in some cases, certain inconsistencies can only be resolved if one adds new interactions.
+Although \expidesi\ is independent from the model inference method that is used for this purpose,
+%  we here generate the initial set of candidate models using OPT\_GRAPH~\cite{samaga13a} a sign-consistency based method for model inference which ensures that all candidate models are consistent with prior experimental data.
+ we here generate the initial set of candidate models from prior experimental data using OPT\_GRAPH~\cite{samaga13a} a sign-consistency based method for model inference.
+ This allows us to implement the complete workflow of experiment planning using sign consistency methods.
+% OPT\_GRAPH~\cite{samaga13a} is a sign consistency based method for network inference,
+% that
+OPT\_GRAPH
+intends to resolve inconsistencies by allowing edge removals and insertions in parallel.
+However, as the insertion of new interactions increases the solution space
+dramatically in large networks,
+OPT\_GRAPH implements a greedy strategy which determines, in each iteration,
+the optimal (single) edge whose inclusion in combination with the edge removals,
+decreases the fitting error the most.
+OPT\_GRAPH then adds this edge permanently and repeats until no further
+significant improvement can be obtained by inserting a new edge.
+If more than one optimal single edge is found during an iteration, then all alternative solution are tracked and explored by OPT\_GRAPH.
+
+
+\paragraph*{\bf Discriminative power of an experiment}
+
+If for a given experiment,
+two models $M_1$ and $M_2$ have in a readout $i \in R$
+different predicted behaviors ($pred_{M_1}(i) \neq pred_{M_2}(i)$),
+ we call this a \emph{distinctive readout}.
+%Figure~\ref{fig:experiment_example} shows three interaction graph models and
+% their predicted behavior for given experiments.
+The readout in an experiment is \emph{strongly distinctive} for two models
+if both models predict contradictory behaviors ($pred_{M_1}(i) \cap pred_{M_2}(i) = \emptyset$).
+For example, in Figure~\ref{fig:experiment_example} in Experiment~1,
+readout $e$ is strongly distinctive, Model A  predicts a decrease
+while Models B and C predict an increase.
+When the experiment is performed the measured behavior of $e$ will
+ invalidate at least one of the models.
+In Experiment~2 in Figure~\ref{fig:experiment_example}, the readout $c$ is distinctive
+but not strongly distinctive, Models A and B predict a decrease while Model C gives an undetermined prediction.
+If Experiment~2 is performed the measurements may discard Models A and B if an
+increase or 0-change in $c$ is measured, but if a decrease is measured then
+all three models are consistent.
+
+While Experiment~1 will in any case invalidate some of the candidate models,
+Experiment~2 only has the potential to discriminate some candidates.
+We say an experiment is \emph{definitely distinguishing} two models if at
+least one \emph{strongly distinctive} readout exists (Experiment 1), and an experiment
+ \emph{potentially distinguishing} two networks if at least one
+ \emph{distinctive} readout exists but no \emph{strongly distinctive} readout (Experiment 2).
+We say an experiment can not distinguish two networks if no distinctive readout exist.
+
+\begin{figure*}[!t]
+\begin{center}
+\input{figures/experiment_example}
+\caption{
+Three interaction graph models which can be distinguished experimentally.
+Predicted behaviors and experimental conditions are represented as colors on
+ the nodes, green (increase), red (decrease), blue (0-change), and yellow
+ (undetermined).
+Perturbations are indicated with a small black arrow and readouts are shown as
+ double circles.
+For Experiment~1, Model A predicts a decrease in node $e$, while the Models B
+ and C predict an increase.
+If one measures in Experiment~1 a decrease in $e$ one must discard Model B and C.
+Should the experiment result in an increase in $e$ one must discard Model A.
+If the Experiment~1 results in a 0-change in $e$ all three models are
+ invalidated and new network candidates must be computed.
+For Experiment~2 Models A and B predict a decrease in $c$, while Model C makes
+ no prediction for $c$.
+If Experiment~2 results in an increase or 0-change in $c$ one must discard
+ Models A and B.
+Should Experiment~2 result in a decrease of $c$ one cannot discriminate any
+ of the three models.
+%
+For Experiment~3 all models predict the same behavior as for Experiment~1, but Experiment~3 uses a different set of perturbations to achieve this readout behavior.
+}
+\label{fig:experiment_example}
+\end{center}
+\end{figure*}
+
+
+We define two functions to approximate the discriminative power
+ of an experiment $E$ wrt. a set of candidate models.
+% \comment{Verstehe den Satz von Because bis are unknown nicht!
+% Experiment führt doch immer zum Readout +, -, oder 0. Garantiert zu einem dieser Ergebnisse. Was soll dann die probability for (...)results? Das es hier um den Informationsgehalt eines Exp geht, ist schon klar. Der erste Halbsatz ist mir aber unklar.
+%}
+\begin{itemize}
+  \item
+  $def\_dis(E)$ denotes the number of pairs of candidate models which are
+   definitely distinguished by an experiment $E$.
+  \item
+  $pot\_dis(E)$ denotes the number of pairs of candidate models which can
+   potentially be distinguished by $E$.
+\end{itemize}
+%
+Used as optimization criteria, we want to maximize the number of distinguished
+candidate models.
+
+
+\paragraph*{\bf Experiment costs}
+
+Apart from the discriminative power a second optimization criterion is the
+costs of the experiments.
+This means in the first place minimizing the number of perturbations.
+For an experiment $E$, we denote number of perturbations with $cost(E)$.
+Revisiting our example in Figure~\ref{fig:experiment_example}, we can see that
+the Experiment~3 with $pert=\{a \rightarrow \plus, b \rightarrow \minus \}$ has
+the same discriminative power as Experiment~1, but demands more perturbations.
+Hence, we might prefer Experiment~1 over Experiment~3.
+
+
+\paragraph*{\bf The optimal experiment design problem}
+
+The main goal of optimal experiment design is to find the experiments that are
+most likely to discard the most models.
+We want to maximize the number of \emph{definitely distinguishable} models and
+with a lower priority maximize the number of \emph{potentially distinguishable}
+models, and as a third objective we want to minimize the costs.
+
+Formally, given
+ a set $\cand$ of candidate models,
+ a set $\done$ of already performed experiments,
+ a function $ppert: V \rightarrow 2^{\{\plus,\minus,0\}}$ indicating the possible perturbations for a species, and
+ a set $\pr$ of possible readouts.
+We want to find experiments $E=(I,pert,R) \notin \done$, with
+ $pert(i) \in ppert(i)$ for all $i \in I$, and
+ $R \subseteq \pr$
+ that
+ \begin{itemize}
+  \item[1.] maximize $def\_dis(E)$,
+  \item[2.] maximize $pot\_dis(E)$, and
+  \item[3.] minimize $cost(E)$.
+ \end{itemize}
+%
+The optimization problem can be performed using solvers that natively support
+hierarchical optimization.
+Alternatively, hierarchical optimization could be emulated  with a single linear
+optimization function using factors $\alpha, \beta, \gamma$:
+\begin{itemize}
+  \item[] maximize $\alpha \cdot def\_dis(E)+ \beta \cdot pot\_dis(E) + \gamma \cdot cost(E)$.
+\end{itemize}
+If the single objective function is used, the factors $\alpha, \beta, \gamma$ can always be chosen such
+that the hierarchical ordering among the solutions is ensured.
+
+Note that the problem definition for optimal single experiments can be straightforwardly
+extended to optimal sets of experiments.
+Then we are looking for a set of experiments which maximizes the discriminative
+power while minimizing the number of experiments and perturbations.
+
+While for \emph{definite distinctions} one strongly distinctive readout is
+sufficient to distinguish two models,
+for \emph{potential distinctions} more distinctive readouts can increase the
+probability of an experimental result that allows to distinguish two models.
+Therefore, another goal might be to maximize the overall number of
+\emph{distinctive} readouts.
+%\comment{Not implemented!}
+
+
+\paragraph*{\bf Relevant perturbations}
+
+Because the measurements of a potentially distinguishing readout might not lead to the invalidation of a model,
+experiments containing irrelevant perturbations might be proposed in a subsequent planning step.
+For example, in Figure~\ref{fig:redundancy}, Experiment~1 aims to distinguish the Models A and B,
+using the measurement of readout $c$,
+but a measurement $m(c)=\plus$ does invalidate none of the models.
+Therefore, a subsequent planning step might propose Experiment~2.
+Although Experiment~2 leads to different predictions as Experiment~1,
+we want to discard Experiment~2 because the perturbation in $d$ does not effect any distinctive readout.
+Therefore, we use an additional constraint to exclude perturbations that have
+in no candidate model a path to a distinctive readout.
+%
+\begin{figure}[]
+\begin{center}
+\input{figures/redundancy}
+ \caption{
+ Two interaction graph models which are potentially distinguished by Experiments~1 and 2.
+ The predicted behaviors and experimental conditions are represented as colors on the nodes,
+ green (increase), red (decrease), blue (0-change), and yellow (undetermined).
+ Perturbations are indicated with a black incoming edge.
+ For Experiments~1 and 2 Model A predicts an undetermined behavior in node $c$
+  while Model B predicts an increase in $c$.
+ Both experiments may distinguish Model A and B but for the minimal number of perturbations one would prefer
+ Experiment~1.
+ Experiment~2 is redundant, even if Experiment~1 fails to distinguish the two models (because $c$ is measured \plus)
+ Experiment~2 is not capable to cause a different behavior in any readout.
+ The only difference between Experiment~1 and 2 is a perturbation in $d$ which has in none of the models a path to a distinctive readout.
+ }
+\label{fig:redundancy}
+\end{center}
+\end{figure}
+
+
+
+\paragraph*{\bf Implementation}
+
+To solve the optimal experiment design problem we formulated it
+by means of Answer Set Programming (ASP)~\cite{baral02a}.
+ASP is a declarative problem solving paradigm from the field of logic
+programming and knowledge representation, that offers a rich modeling
+language~\cite{potasscoManual} along with highly efficient inference
+engines~\cite{gekanesc07a} based on Boolean constraint solving technology.
+We provide a python program called \expidesi~that uses the ASP solver through
+the PyASP library.
+\expidesi~is open source and available as part of the BioASP software collection at
+\texttt{https://github.com/bioasp/exdesi}.
+
+
