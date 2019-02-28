@@ -22,7 +22,6 @@ This module contains the queries which can be asked to the model and data.
 
 """
 import os
-import tempfile
 from pyasp.term import *
 from pyasp.asp import *
 

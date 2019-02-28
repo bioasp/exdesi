@@ -20,7 +20,7 @@ from setuptools import setup
                          
 setup(
   name             = 'exdesi',
-  version          = '0.3',
+  version          = '0.4',
   url              = 'http://bioasp.github.io/exdesi/',
   license          = 'GPLv3+',
   description      = 'Design experiments to differentiate interaction graph '
@@ -32,5 +32,5 @@ setup(
   package_dir      = {'__exdesi__' : 'src'},
   package_data     = {'__exdesi__' : ['encodings/*.lp','encodings/*.gringo']},
   scripts          = ['exdesi.py'],
-  install_requires = ['pyasp == 1.4.3']
+  install_requires = ['pyasp == 1.4.4']
 )
