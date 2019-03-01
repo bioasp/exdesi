@@ -1,26 +1,22 @@
-Installation
-------------
+# Installation
 
+You can install exdesi by running:
 
-You can install exdesi by running::
-
-	$ pip install --user exdesi
+	> pip install --user exdesi
 
 On Linux the executable scripts can then be found in ``~/.local/bin``
 and on MacOS the scripts are under ``/Users/YOURUSERNAME/Library/Python/3.5/bin``.
 
 
+# Usage
 
-Usage
------
+Typical usage is:
 
-Typical usage is::
-
-	$ exdesi.py candidate_directory experimental_variables_file
+	> exdesi.py candidate_directory experimental_variables_file
 	
 For more options you can ask for help as follows::
 
-	$ exdesi.py -h
+	> exdesi.py -h
 	usage: exdesi.py [-h] [--best_set BEST_SET] [-x EXCLUDE] networkfiles experivarfile
 
 	positional arguments:
@@ -35,13 +31,13 @@ For more options you can ask for help as follows::
 	                        exclude experiments described in file EXCLUDE
 
 
-Example
--------
-Sample files available in the data_ directory.
-A sample call would be::
+# Example
 
-        $ exdesi.py in_silico_HEK293/candidates_round1/ in_silico_HEK293/expvars.txt -x in_silico_HEK293/exclude1.txt
+Sample files available in the [data][1] directory.
+A sample call would be:
 
-.. _data: https://github.com/bioasp/exdesi/tree/master/data
+        > exdesi.py in_silico_HEK293/candidates_round1/ in_silico_HEK293/expvars.txt -x in_silico_HEK293/exclude1.txt
+
+[1]: https://github.com/bioasp/exdesi/tree/master/data
 
 
