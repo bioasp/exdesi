@@ -25,7 +25,8 @@ setup(
   license          = 'GPLv3+',
   description      = 'Design experiments to differentiate interaction graph '
                      'models.',
-  long_description = open('README.rst').read(),
+  long_description = open('README.md').read(),
+  long_description_content_type="text/markdown",  
   author           = 'Sven Thiele',
   author_email     = 'sthiele78@gmail.com',
   packages         = ['__exdesi__'],
