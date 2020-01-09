@@ -1,3 +1,4 @@
+[![PyPI version](https://img.shields.io/pypi/v/exdesi.svg)](https://pypi.org/project/exdesi/) 
 # Installation
 
 You can install exdesi by running:
